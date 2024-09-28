@@ -1,0 +1,9 @@
+[package]
+name = "zui_rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+zookeeper-async = { git = "https://github.com/MaximFischuk/rust-zookeeper.git" }
+ratatui = { version = "0.28.1" }
+crossterm = "0.28.1"
