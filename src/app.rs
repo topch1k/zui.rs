@@ -1,10 +1,15 @@
 use core::fmt;
 use std::net::IpAddr;
-#[derive(Debug, Default)]
+
+use ratatui::widgets::ListState;
+#[derive(Default)]
 pub struct App {
     pub state: AppState,
     pub connection: Option<Connection>,
+    pub zk: Option<zookeeper_async::ZooKeeper>,
     pub connection_input: String,
+    pub tab_data: Vec<String>,
+    pub list_state: ListState,
 }
 #[derive(Debug)]
 pub struct Connection {
@@ -32,6 +37,33 @@ impl App {
             None => "".to_owned(),
         }
     }
+
+    pub fn next(&mut self) {
+        let i = match self.list_state.selected() {
+            Some(i) => {
+                if i >= self.tab_data.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.list_state.select(Some(i));
+    }
+    pub fn previous(&mut self) {
+        let i = match self.list_state.selected() {
+            Some(i) => {
+                if i == 0 {
+                    self.tab_data.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.list_state.select(Some(i));
+    }
 }
 
 #[derive(Debug, Default, PartialEq)]
@@ -39,7 +71,7 @@ pub enum AppState {
     #[default]
     EstablishingConnection,
     EditingConnection,
-    Tab(TabState),
+    Tab,
 }
 #[derive(Debug, PartialEq)]
 pub enum TabState {}

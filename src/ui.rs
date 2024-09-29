@@ -1,8 +1,8 @@
 use ratatui::{
     layout::{Alignment, Constraint, Layout},
-    style::Stylize,
+    style::{Modifier, Style, Stylize},
     symbols,
-    widgets::{Block, Borders, Paragraph},
+    widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame,
 };
 
@@ -28,6 +28,9 @@ impl AppUi {
             }
             AppState::EditingConnection => {
                 AppUi::render_connection_editing_screen(frame, app);
+            }
+            AppState::Tab => {
+                AppUi::render_tab_screen(frame, app);
             }
             _ => {}
         }
@@ -169,5 +172,41 @@ impl AppUi {
         frame.render_widget(frame_block, frame.area());
         frame.render_widget(popup_block, popup_layout[1]);
         frame.render_widget(connection_string, input_layout[1]);
+    }
+
+    pub fn render_tab_screen(frame: &mut Frame, app: &mut App) {
+        let frame_layout = Layout::new(
+            ratatui::layout::Direction::Horizontal,
+            vec![Constraint::Fill(3), Constraint::Fill(1)],
+        )
+        .split(frame.area());
+
+        let info_block = Block::default()
+            .title("Info")
+            .borders(Borders::ALL)
+            .border_set(symbols::border::THICK)
+            .on_gray()
+            .title_alignment(Alignment::Center);
+        let nodes_block = Block::default()
+            .title("Nodes")
+            .borders(Borders::ALL)
+            .border_set(symbols::border::THICK)
+            .on_gray()
+            .title_alignment(Alignment::Left);
+
+        let items = app
+            .tab_data
+            .iter()
+            .map(|item| ListItem::new(item.as_str()))
+            .collect::<Vec<ListItem>>();
+
+        let list = List::new(items)
+            .block(nodes_block)
+            .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
+            .highlight_symbol(">>");
+
+        frame.render_widget(info_block, frame_layout[1]);
+        // frame.render_widget(nodes_block, frame_layout[0]);
+        frame.render_stateful_widget(list, frame_layout[0], &mut app.list_state);
     }
 }

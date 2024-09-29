@@ -1,24 +1,27 @@
 pub mod app;
 pub mod cli;
 pub mod ui;
+pub mod zk;
 
-use std::io;
+use std::{io, time::Duration};
 
 use app::{App, AppState};
 use cli::parse_cli;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{prelude::Backend, Terminal};
 use ui::AppUi;
+use zk::LoggingWatcher;
 
-fn main() -> io::Result<()> {
+#[tokio::main]
+async fn main() -> io::Result<()> {
     let mut terminal = ratatui::init();
     terminal.clear()?;
-    let app_result = run(terminal, App::new(parse_cli().connection()));
+    let app_result = run(terminal, App::new(parse_cli().connection())).await;
     ratatui::restore();
     app_result
 }
 
-fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<()> {
+async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<()> {
     loop {
         terminal.draw(|frame| {
             AppUi::ui(frame, &mut app);
@@ -33,7 +36,17 @@ fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<()> {
                 app::AppState::EstablishingConnection => match key.code {
                     KeyCode::Esc => break Result::Ok(()),
                     KeyCode::Enter => {
-                        todo!()
+                        let connection_string = app.connection_input.clone();
+                        let zk = zookeeper_async::ZooKeeper::connect(
+                            &connection_string,
+                            Duration::from_secs(1),
+                            LoggingWatcher,
+                        )
+                        .await
+                        .unwrap(); //TODO:
+                        app.tab_data = zk.get_children("/", false).await.unwrap(); //TODO:
+                        app.zk = Some(zk);
+                        app.state = AppState::Tab;
                     }
                     KeyCode::Char('e') => {
                         app.state = AppState::EditingConnection;
@@ -56,6 +69,12 @@ fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<()> {
                         _ => {}
                     }
                 }
+                app::AppState::Tab => match key.code {
+                    KeyCode::Char('j') | KeyCode::Down => app.next(),
+                    KeyCode::Char('k') | KeyCode::Up => app.previous(),
+                    KeyCode::Char('q') => break Result::Ok(()),
+                    _ => {}
+                },
                 _ => todo!(),
             }
         }
