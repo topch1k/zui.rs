@@ -206,7 +206,8 @@ impl AppUi {
             .borders(Borders::ALL)
             .border_set(symbols::border::THICK)
             .on_gray()
-            .title_alignment(Alignment::Left);
+            .title_alignment(Alignment::Left)
+            .title_bottom("q to Quit | ↑ to Up | ↓ to Down");
 
         let items = app
             .tab_data
