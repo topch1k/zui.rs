@@ -221,7 +221,7 @@ impl AppUi {
             .border_set(symbols::border::THICK)
             .on_gray()
             .title_alignment(Alignment::Left)
-            .title_bottom("q to Quit | ↑ to Up | ↓ to Down");
+            .title_bottom("q to Quit | ↑ to Up | ↓ to Down | Enter to dir Down | Esc to dir Up");
 
         let items = app
             .tab_data
