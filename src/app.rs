@@ -21,6 +21,7 @@ pub struct App {
     pub prev_resources: Vec<String>,   // prev resources: e.g. /zookeeper/config
     pub current_node_stat: Option<Stat>,
     pub message: String,
+    pub node_data: Vec<u8>,
 }
 #[derive(Debug)]
 pub struct Connection {
@@ -146,6 +147,20 @@ impl App {
         self.message.clear();
     }
 
+    pub(crate) async fn store_node_data(&mut self) {
+        let Some(ref zk) = self.zk else {
+            return;
+        };
+
+        let _ = zk
+            .get_data(&self.full_resource_path(), false)
+            .and_then(|(data, _)| async {
+                self.node_data = data;
+                Ok(())
+            })
+            .await;
+    }
+
     pub fn stat_list(&self) -> List {
         let Some(ref stat) = self.current_node_stat else {
             return List::new(Vec::<Vec<Line>>::new());
@@ -178,6 +193,7 @@ pub enum AppState {
     EstablishingConnection,
     EditingConnection,
     Tab,
+    NodeData,
 }
 #[derive(Debug, PartialEq)]
 pub enum TabState {}

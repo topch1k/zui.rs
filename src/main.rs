@@ -96,6 +96,10 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         app.store_children().await;
                         app.list_state.select(None);
                     }
+                    KeyCode::Char('R') => {
+                        app.state = AppState::NodeData;
+                        app.store_node_data().await;
+                    }
                     _ => {}
                 },
                 _ => todo!(),

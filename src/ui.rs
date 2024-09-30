@@ -32,6 +32,9 @@ impl AppUi {
             AppState::Tab => {
                 AppUi::render_tab_screen(frame, app);
             }
+            AppState::NodeData => {
+                AppUi::render_node_data_screen(frame, app);
+            }
             _ => {}
         }
     }
@@ -236,5 +239,99 @@ impl AppUi {
 
         frame.render_stateful_widget(list, work_layout[0], &mut app.list_state);
         frame.render_widget(msg_paragraph, frame_layout[1]);
+    }
+
+    pub fn render_node_data_screen(frame: &mut Frame, app: &mut App) {
+        let frame_layout = Layout::new(
+            ratatui::layout::Direction::Vertical,
+            vec![Constraint::Percentage(90), Constraint::Percentage(10)],
+        )
+        .split(frame.area());
+
+        let data_popup_rect = Layout::new(
+            ratatui::layout::Direction::Horizontal,
+            vec![
+                Constraint::Fill(1),
+                Constraint::Fill(1),
+                Constraint::Fill(1),
+            ],
+        )
+        .split(
+            Layout::new(
+                ratatui::layout::Direction::Vertical,
+                vec![
+                    Constraint::Fill(1),
+                    Constraint::Fill(1),
+                    Constraint::Fill(1),
+                ],
+            )
+            .split(frame.area())[1],
+        )[1];
+
+        let data_paragraph = Paragraph::new(format!("{:?}", app.node_data)).block(
+            Block::default()
+                .title("Node Data")
+                .borders(Borders::ALL)
+                .border_set(symbols::border::THICK)
+                .on_dark_gray()
+                .title_alignment(Alignment::Center)
+                .title_bottom("ESC to cancel | J try as Json | S try as String"),
+        );
+
+        let work_layout = Layout::new(
+            ratatui::layout::Direction::Horizontal,
+            vec![Constraint::Fill(3), Constraint::Fill(1)],
+        )
+        .split(frame_layout[0]);
+
+        let msg_paragraph = Paragraph::new(app.message.as_str()).block(
+            Block::default()
+                .title("Message")
+                .borders(Borders::ALL)
+                .border_set(symbols::border::THICK)
+                .on_gray()
+                .title_alignment(Alignment::Left),
+        );
+
+        let info_block = Block::default()
+            .title("Node Stat")
+            .borders(Borders::ALL)
+            .border_set(symbols::border::THICK)
+            .on_gray()
+            .title_alignment(Alignment::Center);
+
+        let node_stat = &app.current_node_stat;
+        match node_stat {
+            Some(_) => {
+                frame.render_widget(Clear, work_layout[1]);
+                let stat_list = app.stat_list().block(info_block);
+                frame.render_widget(stat_list, work_layout[1]);
+            }
+            None => {
+                frame.render_widget(info_block, work_layout[1]);
+            }
+        }
+
+        let nodes_block = Block::default()
+            .title("Nodes")
+            .borders(Borders::ALL)
+            .border_set(symbols::border::THICK)
+            .on_gray()
+            .title_alignment(Alignment::Left);
+
+        let items = app
+            .tab_data
+            .iter()
+            .map(|item| ListItem::new(item.as_str()))
+            .collect::<Vec<ListItem>>();
+
+        let list = List::new(items)
+            .block(nodes_block)
+            .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
+            .highlight_symbol(">>");
+
+        frame.render_stateful_widget(list, work_layout[0], &mut app.list_state);
+        frame.render_widget(msg_paragraph, frame_layout[1]);
+        frame.render_widget(data_paragraph, data_popup_rect);
     }
 }
