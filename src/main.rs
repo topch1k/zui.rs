@@ -3,12 +3,11 @@ pub mod cli;
 pub mod ui;
 pub mod zk;
 
-use std::{io, time::Duration};
-
 use app::{App, AppState};
 use cli::parse_cli;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{prelude::Backend, Terminal};
+use std::{io, time::Duration};
 use ui::AppUi;
 use zk::LoggingWatcher;
 
@@ -70,9 +69,18 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                     }
                 }
                 app::AppState::Tab => match key.code {
-                    KeyCode::Char('j') | KeyCode::Down => app.next(),
-                    KeyCode::Char('k') | KeyCode::Up => app.previous(),
+                    KeyCode::Char('j') | KeyCode::Down => {
+                        app.next();
+                        let selected = app.selected_path();
+                        app.store_node_stat(selected).await;
+                    }
+                    KeyCode::Char('k') | KeyCode::Up => {
+                        app.previous();
+                        let selected = app.selected_path();
+                        app.store_node_stat(selected).await;
+                    }
                     KeyCode::Char('q') => break Result::Ok(()),
+                    KeyCode::Enter => {}
                     _ => {}
                 },
                 _ => todo!(),

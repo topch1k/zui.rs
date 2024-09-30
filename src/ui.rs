@@ -2,7 +2,7 @@ use ratatui::{
     layout::{Alignment, Constraint, Layout},
     style::{Modifier, Style, Stylize},
     symbols,
-    widgets::{Block, Borders, List, ListItem, Paragraph},
+    widgets::{Block, Borders, Clear, List, ListItem, Paragraph},
     Frame,
 };
 
@@ -182,11 +182,25 @@ impl AppUi {
         .split(frame.area());
 
         let info_block = Block::default()
-            .title("Info")
+            .title("Node Stat")
             .borders(Borders::ALL)
             .border_set(symbols::border::THICK)
             .on_gray()
             .title_alignment(Alignment::Center);
+
+        let node_stat = &app.current_node_stat;
+        match node_stat {
+            Some(_) => {
+                // let stat = StatWidget::from(stat);
+                frame.render_widget(Clear, frame_layout[1]);
+                let stat_list = app.stat_list().block(info_block);
+                frame.render_widget(stat_list, frame_layout[1]);
+            }
+            None => {
+                frame.render_widget(info_block, frame_layout[1]);
+            }
+        }
+
         let nodes_block = Block::default()
             .title("Nodes")
             .borders(Borders::ALL)
@@ -205,8 +219,6 @@ impl AppUi {
             .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
             .highlight_symbol(">>");
 
-        frame.render_widget(info_block, frame_layout[1]);
-        // frame.render_widget(nodes_block, frame_layout[0]);
         frame.render_stateful_widget(list, frame_layout[0], &mut app.list_state);
     }
 }

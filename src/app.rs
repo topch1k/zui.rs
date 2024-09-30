@@ -1,7 +1,11 @@
 use core::fmt;
-use std::net::IpAddr;
-
-use ratatui::widgets::ListState;
+use ratatui::{
+    style::{Style, Stylize},
+    text::Line,
+    widgets::{List, ListState},
+};
+use std::{net::IpAddr, vec};
+use zookeeper_async::Stat;
 #[derive(Default)]
 pub struct App {
     pub state: AppState,
@@ -10,6 +14,8 @@ pub struct App {
     pub connection_input: String,
     pub tab_data: Vec<String>,
     pub list_state: ListState,
+    pub current_tab_path: Option<String>,
+    pub current_node_stat: Option<Stat>,
 }
 #[derive(Debug)]
 pub struct Connection {
@@ -64,8 +70,59 @@ impl App {
         };
         self.list_state.select(Some(i));
     }
-}
 
+    pub fn selected_path(&self) -> Option<String> {
+        let selected_offset = self.list_state.selected();
+        match selected_offset {
+            Some(offset) => self.tab_data.get(offset).cloned().map(|p| format!("/{p}")),
+            None => None,
+        }
+    }
+
+    pub fn set_current_tab_path(&mut self, path: Option<String>) {
+        self.current_tab_path = path;
+    }
+
+    //TODO: change name
+    pub(crate) async fn store_node_stat(&mut self, path: Option<String>) {
+        if let Some(path) = path {
+            let stat = self
+                .zk
+                .as_ref()
+                .unwrap()
+                .exists(&path, false)
+                .await
+                .unwrap(); //TODO:
+            self.current_node_stat = stat;
+        }
+    }
+
+    pub fn stat_list(&self) -> List {
+        let Some(ref stat) = self.current_node_stat else {
+            return List::new(Vec::<Vec<Line>>::new());
+        };
+
+        let style = Style::new().on_gray();
+
+        let lines = vec![
+            Line::styled(format!("\t czxid : {}", stat.czxid), style),
+            Line::styled(format!("\t mzxid : {}", stat.mzxid), style),
+            Line::styled(format!("\t ctime : {}", stat.ctime), style),
+            Line::styled(format!("\t mtime : {}", stat.mtime), style),
+            Line::styled(format!("\t version : {}", stat.version), style),
+            Line::styled(format!("\t cversion : {}", stat.cversion), style),
+            Line::styled(format!("\t aversion : {}", stat.aversion), style),
+            Line::styled(
+                format!("\t ephemeral owner : {}", stat.ephemeral_owner),
+                style,
+            ),
+            Line::styled(format!("\t data length : {}", stat.data_length), style),
+            Line::styled(format!("\t num children : {}", stat.num_children), style),
+            Line::styled(format!("\t pzxid : {}", stat.pzxid), style),
+        ];
+        List::from_iter(lines)
+    }
+}
 #[derive(Debug, Default, PartialEq)]
 pub enum AppState {
     #[default]

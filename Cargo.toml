@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 zookeeper-async = { git = "https://github.com/MaximFischuk/rust-zookeeper.git" }
-ratatui = { version = "0.28.1" }
-crossterm = {version = "0.28.1", features = ["event-stream"]}
+ratatui = { version = "0.28.1"}
+crossterm = { version = "0.28.1", features = ["event-stream"] }
 clap = { version = "4.5.18", features = ["derive"] }
 tokio = { version = "1.16.1", features = ["full"] }
