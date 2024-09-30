@@ -14,7 +14,8 @@ pub struct App {
     pub connection_input: String,
     pub tab_data: Vec<String>,
     pub list_state: ListState,
-    pub current_tab_path: Option<String>,
+    pub curr_resource: Option<String>, // selected node for current nest level
+    pub prev_resources: Vec<String>,   // prev resources: e.g. /zookeeper/config
     pub current_node_stat: Option<Stat>,
 }
 #[derive(Debug)]
@@ -71,7 +72,7 @@ impl App {
         self.list_state.select(Some(i));
     }
 
-    pub fn selected_path(&self) -> Option<String> {
+    pub fn selected_resource(&self) -> Option<String> {
         let selected_offset = self.list_state.selected();
         match selected_offset {
             Some(offset) => self.tab_data.get(offset).cloned().map(|p| format!("/{p}")),
@@ -80,23 +81,26 @@ impl App {
     }
 
     pub fn set_current_tab_path(&mut self, path: Option<String>) {
-        self.current_tab_path = path;
+        self.curr_resource = path;
     }
 
-    //TODO: change name
-    pub(crate) async fn store_node_stat(&mut self, path: Option<String>) {
-        if let Some(path) = path {
-            let stat = self
-                .zk
-                .as_ref()
-                .unwrap()
-                .exists(&path, false)
-                .await
-                .unwrap(); //TODO:
-            self.current_node_stat = stat;
-        }
+    pub(crate) async fn store_node_stat(&mut self) {
+        let full_path = self.full_resource_path();
+        let stat = self
+            .zk
+            .as_ref()
+            .unwrap()
+            .exists(&full_path, false)
+            .await
+            .unwrap(); //TODO:
+        self.current_node_stat = stat;
     }
 
+    pub(crate) fn full_resource_path(&self) -> String {
+        let prev = &self.prev_resources;
+        let curr = &self.curr_resource;
+        [prev.concat(), curr.clone().unwrap_or_default()].concat()
+    }
     pub fn stat_list(&self) -> List {
         let Some(ref stat) = self.current_node_stat else {
             return List::new(Vec::<Vec<Line>>::new());

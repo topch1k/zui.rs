@@ -71,13 +71,13 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                 app::AppState::Tab => match key.code {
                     KeyCode::Char('j') | KeyCode::Down => {
                         app.next();
-                        let selected = app.selected_path();
-                        app.store_node_stat(selected).await;
+                        app.curr_resource = app.selected_resource();
+                        app.store_node_stat().await;
                     }
                     KeyCode::Char('k') | KeyCode::Up => {
                         app.previous();
-                        let selected = app.selected_path();
-                        app.store_node_stat(selected).await;
+                        app.curr_resource = app.selected_resource();
+                        app.store_node_stat().await;
                     }
                     KeyCode::Char('q') => break Result::Ok(()),
                     KeyCode::Enter => {}
