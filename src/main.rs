@@ -80,7 +80,14 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         app.store_node_stat().await;
                     }
                     KeyCode::Char('q') => break Result::Ok(()),
-                    KeyCode::Enter => {}
+                    KeyCode::Enter => {
+                        let curr = app.selected_resource();
+                        app.store_children().await;
+                        if let Some(curr) = curr {
+                            app.prev_resources.push(curr);
+                        }
+                        app.list_state.select(None);
+                    }
                     _ => {}
                 },
                 _ => todo!(),

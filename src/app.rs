@@ -101,6 +101,19 @@ impl App {
         let curr = &self.curr_resource;
         [prev.concat(), curr.clone().unwrap_or_default()].concat()
     }
+
+    pub(crate) async fn store_children(&mut self) {
+        let Some(ref zk) = self.zk else {
+            return;
+        };
+        let children = zk
+            .get_children(&self.full_resource_path(), false)
+            .await
+            .ok();
+        if let Some(ch) = children {
+            self.tab_data = ch;
+        }
+    }
     pub fn stat_list(&self) -> List {
         let Some(ref stat) = self.current_node_stat else {
             return List::new(Vec::<Vec<Line>>::new());
