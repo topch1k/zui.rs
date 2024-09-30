@@ -17,6 +17,7 @@ pub struct App {
     pub curr_resource: Option<String>, // selected node for current nest level
     pub prev_resources: Vec<String>,   // prev resources: e.g. /zookeeper/config
     pub current_node_stat: Option<Stat>,
+    pub message: String,
 }
 #[derive(Debug)]
 pub struct Connection {

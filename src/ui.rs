@@ -176,10 +176,25 @@ impl AppUi {
 
     pub fn render_tab_screen(frame: &mut Frame, app: &mut App) {
         let frame_layout = Layout::new(
+            ratatui::layout::Direction::Vertical,
+            vec![Constraint::Percentage(90), Constraint::Percentage(10)],
+        )
+        .split(frame.area());
+
+        let work_layout = Layout::new(
             ratatui::layout::Direction::Horizontal,
             vec![Constraint::Fill(3), Constraint::Fill(1)],
         )
-        .split(frame.area());
+        .split(frame_layout[0]);
+
+        let msg_paragraph = Paragraph::new(app.message.as_str()).block(
+            Block::default()
+                .title("Message")
+                .borders(Borders::ALL)
+                .border_set(symbols::border::THICK)
+                .on_gray()
+                .title_alignment(Alignment::Left),
+        );
 
         let info_block = Block::default()
             .title("Node Stat")
@@ -191,13 +206,12 @@ impl AppUi {
         let node_stat = &app.current_node_stat;
         match node_stat {
             Some(_) => {
-                // let stat = StatWidget::from(stat);
-                frame.render_widget(Clear, frame_layout[1]);
+                frame.render_widget(Clear, work_layout[1]);
                 let stat_list = app.stat_list().block(info_block);
-                frame.render_widget(stat_list, frame_layout[1]);
+                frame.render_widget(stat_list, work_layout[1]);
             }
             None => {
-                frame.render_widget(info_block, frame_layout[1]);
+                frame.render_widget(info_block, work_layout[1]);
             }
         }
 
@@ -220,6 +234,7 @@ impl AppUi {
             .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
             .highlight_symbol(">>");
 
-        frame.render_stateful_widget(list, frame_layout[0], &mut app.list_state);
+        frame.render_stateful_widget(list, work_layout[0], &mut app.list_state);
+        frame.render_widget(msg_paragraph, frame_layout[1]);
     }
 }
