@@ -1,4 +1,5 @@
 use core::fmt;
+use futures::TryFutureExt;
 use ratatui::{
     style::{Style, Stylize},
     text::Line,
@@ -6,6 +7,8 @@ use ratatui::{
 };
 use std::{net::IpAddr, vec};
 use zookeeper_async::Stat;
+
+const BASE_RESOURCE: &str = "/";
 #[derive(Default)]
 pub struct App {
     pub state: AppState,
@@ -87,26 +90,41 @@ impl App {
 
     pub(crate) async fn store_node_stat(&mut self) {
         let full_path = self.full_resource_path();
-        let stat = self
+        let _ = self
             .zk
             .as_ref()
             .unwrap()
             .exists(&full_path, false)
-            .await
-            .unwrap(); //TODO:
-        self.current_node_stat = stat;
+            .and_then(|stat| async {
+                self.current_node_stat = stat;
+                Ok(())
+            })
+            .await;
     }
 
     pub(crate) fn full_resource_path(&self) -> String {
         let prev = &self.prev_resources;
         let curr = &self.curr_resource;
-        [prev.concat(), curr.clone().unwrap_or_default()].concat()
+        [
+            prev.concat(),
+            curr.clone().unwrap_or(BASE_RESOURCE.to_owned()),
+        ]
+        .concat()
     }
 
+    pub(crate) fn is_full_resources_path_empty(&self) -> bool {
+        self.prev_resources.is_empty() && self.curr_resource.is_none()
+    }
     pub(crate) async fn store_children(&mut self) {
+        {
+            self.clear_message();
+            self.append_message(format!("Full path : {}\n", self.full_resource_path()));
+            self.append_message(format!("Prev path : {:?}\n", self.prev_resources));
+        }
         let Some(ref zk) = self.zk else {
             return;
         };
+
         let children = zk
             .get_children(&self.full_resource_path(), false)
             .await
@@ -115,6 +133,19 @@ impl App {
             self.tab_data = ch;
         }
     }
+
+    pub(crate) fn set_message(&mut self, msg: String) {
+        self.message = msg;
+    }
+
+    pub(crate) fn append_message(&mut self, msg: String) {
+        self.message.push_str(&msg);
+    }
+
+    pub(crate) fn clear_message(&mut self) {
+        self.message.clear();
+    }
+
     pub fn stat_list(&self) -> List {
         let Some(ref stat) = self.current_node_stat else {
             return List::new(Vec::<Vec<Line>>::new());

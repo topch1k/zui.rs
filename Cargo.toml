@@ -9,3 +9,4 @@ ratatui = { version = "0.28.1"}
 crossterm = { version = "0.28.1", features = ["event-stream"] }
 clap = { version = "4.5.18", features = ["derive"] }
 tokio = { version = "1.16.1", features = ["full"] }
+futures = "0.3.30"

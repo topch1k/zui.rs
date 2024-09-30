@@ -1095,6 +1095,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "crossterm",
+ "futures",
  "ratatui",
  "tokio",
  "zookeeper-async",

@@ -88,6 +88,14 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         }
                         app.list_state.select(None);
                     }
+                    KeyCode::Esc => {
+                        if app.is_full_resources_path_empty() {
+                            continue;
+                        }
+                        app.curr_resource = app.prev_resources.pop();
+                        app.store_children().await;
+                        app.list_state.select(None);
+                    }
                     _ => {}
                 },
                 _ => todo!(),
