@@ -8,7 +8,7 @@ use ratatui::{
 use std::{mem, net::IpAddr, vec};
 use zookeeper_async::{Acl, Stat};
 
-use crate::node_data::NodeData;
+use crate::{node_data::NodeData, tab::Tab};
 
 const BASE_RESOURCE: &str = "/";
 const CONFIRMATION_STRING: &str = "DELETE";
@@ -18,6 +18,10 @@ pub struct App {
     pub connection: Option<Connection>,
     pub zk: Option<zookeeper_async::ZooKeeper>,
     pub connection_input: String,
+    pub curr_tab: usize,
+    pub tabs: Vec<Tab>,
+
+    // -//- Moved to Tab struct
     pub tab_data: Vec<String>,
     pub list_state: ListState,
     pub curr_resource: Option<String>, // selected node for current nest level
@@ -29,6 +33,7 @@ pub struct App {
     pub node_data_buf: String,
     pub input_buf: String,
 }
+
 #[derive(Debug)]
 pub struct Connection {
     pub addr: IpAddr,
@@ -46,6 +51,8 @@ impl App {
         Self {
             connection_input: connection.to_string(),
             connection: Some(connection),
+            tabs: vec![Tab::default(), Tab::default(), Tab::default()],
+            curr_tab: 2usize,
             ..Default::default()
         }
     }
@@ -81,6 +88,26 @@ impl App {
             None => 0,
         };
         self.list_state.select(Some(i));
+    }
+
+    pub fn next_tab(&mut self) {
+        // println!("Current tab : {}", self.curr_tab);
+        // println!("tabs len : {}", self.tab_data.len());
+        if self.tabs.len() > 1 {
+            self.curr_tab = (self.curr_tab + 1) % self.tabs.len();
+        }
+    }
+
+    pub fn previous_tab(&mut self) {
+        // println!("Current tab : {}", self.curr_tab);
+        // println!("tabs len : {}", self.tab_data.len());
+        if self.tabs.len() > 1 {
+            if self.curr_tab == 0usize {
+                self.curr_tab = self.tabs.len() - 1;
+            } else {
+                self.curr_tab = self.curr_tab - 1;
+            }
+        }
     }
 
     pub fn selected_resource(&self) -> Option<String> {

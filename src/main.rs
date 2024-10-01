@@ -1,6 +1,7 @@
 pub mod app;
 pub mod cli;
 pub mod node_data;
+pub mod tab;
 pub mod ui;
 pub mod zk;
 
