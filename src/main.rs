@@ -1,5 +1,6 @@
 pub mod app;
 pub mod cli;
+pub mod node_data;
 pub mod ui;
 pub mod zk;
 
@@ -99,6 +100,21 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                     KeyCode::Char('R') => {
                         app.state = AppState::NodeData;
                         app.store_node_data().await;
+                    }
+                    _ => {}
+                },
+                AppState::NodeData => match key.code {
+                    KeyCode::Esc => {
+                        app.state = AppState::Tab;
+                    }
+                    KeyCode::Char('S') => {
+                        app.node_data = app.node_data.convert_to_string();
+                    }
+                    KeyCode::Char('J') => {
+                        app.node_data = app.node_data.convert_to_json();
+                    }
+                    KeyCode::Char('R') => {
+                        app.node_data = app.node_data.convert_to_raw();
                     }
                     _ => {}
                 },

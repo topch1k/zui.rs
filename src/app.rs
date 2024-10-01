@@ -8,6 +8,8 @@ use ratatui::{
 use std::{net::IpAddr, vec};
 use zookeeper_async::Stat;
 
+use crate::node_data::NodeData;
+
 const BASE_RESOURCE: &str = "/";
 #[derive(Default)]
 pub struct App {
@@ -21,7 +23,7 @@ pub struct App {
     pub prev_resources: Vec<String>,   // prev resources: e.g. /zookeeper/config
     pub current_node_stat: Option<Stat>,
     pub message: String,
-    pub node_data: Vec<u8>,
+    pub node_data: NodeData,
 }
 #[derive(Debug)]
 pub struct Connection {
@@ -155,7 +157,7 @@ impl App {
         let _ = zk
             .get_data(&self.full_resource_path(), false)
             .and_then(|(data, _)| async {
-                self.node_data = data;
+                self.node_data = NodeData::Raw(data);
                 Ok(())
             })
             .await;

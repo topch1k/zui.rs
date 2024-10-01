@@ -2,7 +2,7 @@ use ratatui::{
     layout::{Alignment, Constraint, Layout},
     style::{Modifier, Style, Stylize},
     symbols,
-    widgets::{Block, Borders, Clear, List, ListItem, Paragraph},
+    widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
     Frame,
 };
 
@@ -268,15 +268,17 @@ impl AppUi {
             .split(frame.area())[1],
         )[1];
 
-        let data_paragraph = Paragraph::new(format!("{:?}", app.node_data)).block(
-            Block::default()
-                .title("Node Data")
-                .borders(Borders::ALL)
-                .border_set(symbols::border::THICK)
-                .on_dark_gray()
-                .title_alignment(Alignment::Center)
-                .title_bottom("ESC to cancel | J try as Json | S try as String"),
-        );
+        let data_paragraph = Paragraph::new(app.node_data.to_string())
+            .wrap(Wrap { trim: true })
+            .block(
+                Block::default()
+                    .title("Node Data")
+                    .borders(Borders::ALL)
+                    .border_set(symbols::border::THICK)
+                    .on_dark_gray()
+                    .title_alignment(Alignment::Center)
+                    .title_bottom("ESC to cancel | J as Json | S as String | R as Raw"),
+            );
 
         let work_layout = Layout::new(
             ratatui::layout::Direction::Horizontal,
