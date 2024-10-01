@@ -5,7 +5,7 @@ use ratatui::{
     text::Line,
     widgets::{List, ListState},
 };
-use std::{mem, net::IpAddr, vec};
+use std::{cmp::min, mem, net::IpAddr, vec};
 use zookeeper_async::{Acl, Stat};
 
 use crate::{node_data::NodeData, tab::Tab};
@@ -52,7 +52,7 @@ impl App {
             connection_input: connection.to_string(),
             connection: Some(connection),
             tabs: vec![Tab::default(), Tab::default(), Tab::default()],
-            curr_tab: 2usize,
+            curr_tab: 0usize,
             ..Default::default()
         }
     }
@@ -89,25 +89,18 @@ impl App {
         };
         self.list_state.select(Some(i));
     }
-
+    fn tabs_len(&self) -> usize {
+        self.tabs.len()
+    }
+    fn current_tab(&self) -> usize {
+        self.curr_tab
+    }
     pub fn next_tab(&mut self) {
-        // println!("Current tab : {}", self.curr_tab);
-        // println!("tabs len : {}", self.tab_data.len());
-        if self.tabs.len() > 1 {
-            self.curr_tab = (self.curr_tab + 1) % self.tabs.len();
-        }
+        self.curr_tab = min(self.current_tab() + 1, self.tabs_len() - 1);
     }
 
     pub fn previous_tab(&mut self) {
-        // println!("Current tab : {}", self.curr_tab);
-        // println!("tabs len : {}", self.tab_data.len());
-        if self.tabs.len() > 1 {
-            if self.curr_tab == 0usize {
-                self.curr_tab = self.tabs.len() - 1;
-            } else {
-                self.curr_tab = self.curr_tab - 1;
-            }
-        }
+        self.curr_tab = self.current_tab().saturating_sub(1);
     }
 
     pub fn selected_resource(&self) -> Option<String> {

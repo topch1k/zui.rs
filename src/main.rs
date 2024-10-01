@@ -110,6 +110,12 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         app.state = AppState::DeleteNode;
                         app.node_path_buf = app.full_resource_path();
                     }
+                    KeyCode::Right => {
+                        app.next_tab();
+                    }
+                    KeyCode::Left => {
+                        app.previous_tab();
+                    }
 
                     _ => {}
                 },
