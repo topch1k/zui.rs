@@ -98,17 +98,17 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         app.list_state.select(None);
                     }
                     KeyCode::Char('R') => {
-                        app.state = AppState::NodeData;
+                        app.state = AppState::ReadNodeData;
                         app.store_node_data().await;
                     }
                     KeyCode::Char('C') => {
                         app.state = AppState::EditCreateNodePath;
-                        app.create_node_path_buf = app.full_resource_path();
+                        app.node_path_buf = app.full_resource_path();
                     }
 
                     _ => {}
                 },
-                AppState::NodeData => match key.code {
+                AppState::ReadNodeData => match key.code {
                     KeyCode::Esc => {
                         app.state = AppState::Tab;
                     }
@@ -120,6 +120,11 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                     }
                     KeyCode::Char('R') => {
                         app.node_data = app.node_data.convert_to_raw();
+                    }
+                    KeyCode::Char('E') => {
+                        app.node_data = app.node_data.convert_to_string();
+                        app.node_data_buf = app.node_data.to_string();
+                        app.state = AppState::EditNodeData;
                     }
                     _ => {}
                 },
@@ -134,10 +139,10 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         app.state = AppState::EditCreateNodeData;
                     }
                     KeyCode::Char(value) => {
-                        app.create_node_path_buf.push(value);
+                        app.node_path_buf.push(value);
                     }
                     KeyCode::Backspace => {
-                        app.create_node_path_buf.pop();
+                        app.node_path_buf.pop();
                     }
 
                     _ => {}
@@ -153,12 +158,30 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         app.state = AppState::EditCreateNodePath;
                     }
                     KeyCode::Char(value) => {
-                        app.create_node_data_buf.push(value);
+                        app.node_data_buf.push(value);
                     }
                     KeyCode::Backspace => {
-                        app.create_node_data_buf.pop();
+                        app.node_data_buf.pop();
                     }
 
+                    _ => {}
+                },
+                AppState::EditNodeData => match key.code {
+                    KeyCode::Esc => {
+                        app.state = AppState::ReadNodeData;
+                        app.store_node_data().await;
+                    }
+                    KeyCode::Enter => {
+                        app.set_data().await;
+                        app.state = AppState::ReadNodeData;
+                        app.store_node_data().await;
+                    }
+                    KeyCode::Char(value) => {
+                        app.node_data_buf.push(value);
+                    }
+                    KeyCode::Backspace => {
+                        app.node_data_buf.pop();
+                    }
                     _ => {}
                 },
                 _ => todo!(),

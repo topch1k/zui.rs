@@ -5,7 +5,7 @@ use ratatui::{
     text::Line,
     widgets::{List, ListState},
 };
-use std::{net::IpAddr, vec};
+use std::{mem, net::IpAddr, vec};
 use zookeeper_async::{Acl, Stat};
 
 use crate::node_data::NodeData;
@@ -24,8 +24,8 @@ pub struct App {
     pub current_node_stat: Option<Stat>,
     pub message: String,
     pub node_data: NodeData,
-    pub create_node_path_buf: String,
-    pub create_node_data_buf: String,
+    pub node_path_buf: String,
+    pub node_data_buf: String,
 }
 #[derive(Debug)]
 pub struct Connection {
@@ -173,8 +173,8 @@ impl App {
 
         let res = zk
             .create(
-                &self.create_node_path_buf,
-                self.create_node_data_buf.clone().into_bytes(),
+                &self.node_path_buf,
+                self.node_data_buf.clone().into_bytes(),
                 Acl::open_unsafe().clone(),
                 zookeeper_async::CreateMode::Persistent,
             )
@@ -182,6 +182,25 @@ impl App {
         match res {
             Ok(created_path) => self.message = format!("Node {created_path} created successfully"),
             Err(e) => self.message = format!("Node creation failed : {e}"),
+        }
+    }
+
+    pub(crate) async fn set_data(&mut self) {
+        let Some(ref zk) = self.zk else {
+            "Failed to get zookeeper client".clone_into(&mut self.message);
+            return;
+        };
+
+        let data = mem::take(&mut self.node_data_buf).into_bytes();
+        let res = zk.set_data(&self.full_resource_path(), data, None).await;
+        match res {
+            Ok(_) => {
+                self.message = format!(
+                    "Node {} data successfully updated",
+                    self.full_resource_path()
+                )
+            }
+            Err(e) => self.message = format!("Node data update failed : {e}"),
         }
     }
     pub fn stat_list(&self) -> List {
@@ -216,7 +235,8 @@ pub enum AppState {
     EstablishingConnection,
     EditingConnection,
     Tab,
-    NodeData,
+    ReadNodeData,
     EditCreateNodePath,
     EditCreateNodeData,
+    EditNodeData,
 }
