@@ -101,6 +101,11 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         app.state = AppState::NodeData;
                         app.store_node_data().await;
                     }
+                    KeyCode::Char('C') => {
+                        app.state = AppState::EditCreateNodePath;
+                        app.create_node_path_buf = app.full_resource_path();
+                    }
+
                     _ => {}
                 },
                 AppState::NodeData => match key.code {
@@ -116,6 +121,44 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                     KeyCode::Char('R') => {
                         app.node_data = app.node_data.convert_to_raw();
                     }
+                    _ => {}
+                },
+                AppState::EditCreateNodePath => match key.code {
+                    KeyCode::Esc => {
+                        app.state = AppState::Tab;
+                    }
+                    KeyCode::Enter => {
+                        app.create_node().await;
+                    }
+                    KeyCode::Tab => {
+                        app.state = AppState::EditCreateNodeData;
+                    }
+                    KeyCode::Char(value) => {
+                        app.create_node_path_buf.push(value);
+                    }
+                    KeyCode::Backspace => {
+                        app.create_node_path_buf.pop();
+                    }
+
+                    _ => {}
+                },
+                AppState::EditCreateNodeData => match key.code {
+                    KeyCode::Esc => {
+                        app.state = AppState::Tab;
+                    }
+                    KeyCode::Enter => {
+                        app.create_node().await;
+                    }
+                    KeyCode::Tab => {
+                        app.state = AppState::EditCreateNodePath;
+                    }
+                    KeyCode::Char(value) => {
+                        app.create_node_data_buf.push(value);
+                    }
+                    KeyCode::Backspace => {
+                        app.create_node_data_buf.pop();
+                    }
+
                     _ => {}
                 },
                 _ => todo!(),

@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{List, ListState},
 };
 use std::{net::IpAddr, vec};
-use zookeeper_async::Stat;
+use zookeeper_async::{Acl, Stat};
 
 use crate::node_data::NodeData;
 
@@ -24,6 +24,8 @@ pub struct App {
     pub current_node_stat: Option<Stat>,
     pub message: String,
     pub node_data: NodeData,
+    pub create_node_path_buf: String,
+    pub create_node_data_buf: String,
 }
 #[derive(Debug)]
 pub struct Connection {
@@ -163,6 +165,25 @@ impl App {
             .await;
     }
 
+    pub(crate) async fn create_node(&mut self) {
+        let Some(ref zk) = self.zk else {
+            "Failed to get zookeeper client".clone_into(&mut self.message);
+            return;
+        };
+
+        let res = zk
+            .create(
+                &self.create_node_path_buf,
+                self.create_node_data_buf.clone().into_bytes(),
+                Acl::open_unsafe().clone(),
+                zookeeper_async::CreateMode::Persistent,
+            )
+            .await;
+        match res {
+            Ok(created_path) => self.message = format!("Node {created_path} created successfully"),
+            Err(e) => self.message = format!("Node creation failed : {e}"),
+        }
+    }
     pub fn stat_list(&self) -> List {
         let Some(ref stat) = self.current_node_stat else {
             return List::new(Vec::<Vec<Line>>::new());
@@ -196,6 +217,6 @@ pub enum AppState {
     EditingConnection,
     Tab,
     NodeData,
+    EditCreateNodePath,
+    EditCreateNodeData,
 }
-#[derive(Debug, PartialEq)]
-pub enum TabState {}
