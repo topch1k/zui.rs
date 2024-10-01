@@ -11,6 +11,7 @@ use zookeeper_async::{Acl, Stat};
 use crate::node_data::NodeData;
 
 const BASE_RESOURCE: &str = "/";
+const CONFIRMATION_STRING: &str = "DELETE";
 #[derive(Default)]
 pub struct App {
     pub state: AppState,
@@ -26,6 +27,7 @@ pub struct App {
     pub node_data: NodeData,
     pub node_path_buf: String,
     pub node_data_buf: String,
+    pub input_buf: String,
 }
 #[derive(Debug)]
 pub struct Connection {
@@ -203,6 +205,25 @@ impl App {
             Err(e) => self.message = format!("Node data update failed : {e}"),
         }
     }
+
+    pub(crate) async fn delete_node(&mut self) {
+        let Some(ref zk) = self.zk else {
+            "Failed to get zookeeper client".clone_into(&mut self.message);
+            return;
+        };
+        let res = zk.delete(&self.full_resource_path(), None).await;
+        match res {
+            Ok(_) => {
+                self.message = format!("Node {} successfully deleted", self.full_resource_path())
+            }
+            Err(e) => self.message = format!("Delete node failed : {e}"),
+        }
+    }
+
+    pub(crate) fn is_deletion_confirmed(&mut self) -> bool {
+        let confirmation = mem::take(&mut self.input_buf);
+        confirmation.eq(CONFIRMATION_STRING)
+    }
     pub fn stat_list(&self) -> List {
         let Some(ref stat) = self.current_node_stat else {
             return List::new(Vec::<Vec<Line>>::new());
@@ -239,4 +260,6 @@ pub enum AppState {
     EditCreateNodePath,
     EditCreateNodeData,
     EditNodeData,
+    DeleteNode,
+    ConfirmDelete,
 }

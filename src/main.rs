@@ -105,6 +105,10 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         app.state = AppState::EditCreateNodePath;
                         app.node_path_buf = app.full_resource_path();
                     }
+                    KeyCode::Char('D') => {
+                        app.state = AppState::DeleteNode;
+                        app.node_path_buf = app.full_resource_path();
+                    }
 
                     _ => {}
                 },
@@ -181,6 +185,43 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                     }
                     KeyCode::Backspace => {
                         app.node_data_buf.pop();
+                    }
+                    _ => {}
+                },
+                AppState::DeleteNode => match key.code {
+                    KeyCode::Esc => {
+                        app.state = AppState::Tab;
+                    }
+                    KeyCode::Enter => {
+                        app.state = AppState::ConfirmDelete;
+                    }
+                    KeyCode::Char(value) => {
+                        app.node_path_buf.push(value);
+                    }
+                    KeyCode::Backspace => {
+                        app.node_path_buf.pop();
+                    }
+                    _ => {}
+                },
+                AppState::ConfirmDelete => match key.code {
+                    KeyCode::Esc => {
+                        app.state = AppState::DeleteNode;
+                    }
+                    KeyCode::Enter => {
+                        if app.is_deletion_confirmed() {
+                            app.delete_node().await;
+                            app.state = AppState::Tab;
+                            app.curr_resource = None;
+                            app.store_children().await;
+                        } else {
+                            app.set_message("Incorrect confirmation string".to_owned());
+                        }
+                    }
+                    KeyCode::Char(value) => {
+                        app.input_buf.push(value);
+                    }
+                    KeyCode::Backspace => {
+                        app.input_buf.pop();
                     }
                     _ => {}
                 },
