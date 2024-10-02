@@ -153,11 +153,24 @@ impl App {
             .block(AppUi::edit_path_active_block())
             .render(area, buf);
     }
+    pub(crate) fn render_edit_path_non_active_block(&mut self, area: Rect, buf: &mut Buffer) {
+        Paragraph::new(self.node_path_buf().as_str())
+            .wrap(Wrap { trim: true })
+            .block(AppUi::edit_path_non_active_block())
+            .render(area, buf);
+    }
 
-    pub(crate) fn render_edit_data_passive_block(&mut self, area: Rect, buf: &mut Buffer) {
+    pub(crate) fn render_edit_data_non_active_block(&mut self, area: Rect, buf: &mut Buffer) {
         Paragraph::new(self.node_data_buf().as_str())
             .wrap(Wrap { trim: true })
             .block(AppUi::edit_data_non_active_block())
+            .render(area, buf);
+    }
+
+    pub(crate) fn render_edit_data_active_block(&mut self, area: Rect, buf: &mut Buffer) {
+        Paragraph::new(self.node_data_buf().as_str())
+            .wrap(Wrap { trim: true })
+            .block(AppUi::edit_data_active_block())
             .render(area, buf);
     }
 }
