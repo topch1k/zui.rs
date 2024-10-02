@@ -4,9 +4,9 @@ use super::App;
 
 impl App {
     pub fn next(&mut self) {
-        let i = match self.list_state.selected() {
+        let i = match self.curr_tab().list_state.selected() {
             Some(i) => {
-                if i >= self.tab_data.len() - 1 {
+                if i >= self.curr_tab().tab_data.len() - 1 {
                     0
                 } else {
                     i + 1
@@ -14,20 +14,20 @@ impl App {
             }
             None => 0,
         };
-        self.list_state.select(Some(i));
+        self.curr_tab_mut().list_state.select(Some(i));
     }
     pub fn previous(&mut self) {
-        let i = match self.list_state.selected() {
+        let i = match self.curr_tab().list_state.selected() {
             Some(i) => {
                 if i == 0 {
-                    self.tab_data.len() - 1
+                    self.curr_tab().tab_data.len() - 1
                 } else {
                     i - 1
                 }
             }
             None => 0,
         };
-        self.list_state.select(Some(i));
+        self.curr_tab_mut().list_state.select(Some(i));
     }
     fn tabs_len(&self) -> usize {
         self.tabs.len()

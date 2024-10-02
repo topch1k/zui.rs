@@ -1,11 +1,14 @@
-use crate::node_data::NodeData;
+use crate::{
+    app::{state::TabState, BASE_RESOURCE},
+    node_data::NodeData,
+};
 use ratatui::{
     style::{palette::tailwind, Color, Stylize},
     text::Line,
     widgets::ListState,
 };
 use zookeeper_async::Stat;
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Tab {
     pub tab_data: Vec<String>,
     pub list_state: ListState,
@@ -17,11 +20,31 @@ pub struct Tab {
     pub node_path_buf: String,
     pub node_data_buf: String,
     pub input_buf: String,
+    pub state: TabState,
+}
+
+impl Default for Tab {
+    fn default() -> Self {
+        Self {
+            tab_data: Default::default(),
+            list_state: Default::default(),
+            curr_resource: Some(BASE_RESOURCE.to_string()),
+            prev_resources: Default::default(),
+            current_node_stat: Default::default(),
+            message: Default::default(),
+            node_data: Default::default(),
+            node_path_buf: Default::default(),
+            node_data_buf: Default::default(),
+            input_buf: Default::default(),
+            state: Default::default(),
+        }
+    }
 }
 
 impl Tab {
     pub fn title(&self) -> Line<'static> {
-        format!("  Tab  ")
+        "  Tab  "
+            .to_string()
             .fg(tailwind::SLATE.c200)
             .bg(tailwind::BLUE.c900)
             .into()

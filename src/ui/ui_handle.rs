@@ -6,7 +6,10 @@ use ratatui::{
     Frame,
 };
 
-use crate::app::{state::AppState, App};
+use crate::app::{
+    state::{AppState, TabState},
+    App,
+};
 
 pub struct AppUi {}
 
@@ -19,27 +22,19 @@ impl AppUi {
             AppState::EditingConnection => {
                 AppUi::render_connection_editing_screen(frame, app);
             }
-            AppState::Tab => {
-                AppUi::render_tab_screen(frame, app);
-            }
-            AppState::ReadNodeData => {
-                AppUi::render_node_data_screen(frame, app);
-            }
-            AppState::EditCreateNodePath => {
-                AppUi::render_edit_create_node_path_screen(frame, app);
-            }
-            AppState::EditCreateNodeData => {
-                AppUi::render_edit_create_node_data_screen(frame, app);
-            }
-            AppState::EditNodeData => {
-                AppUi::render_edit_node_data_screen(frame, app);
-            }
-            AppState::DeleteNode => {
-                AppUi::render_delete_node_screen(frame, app);
-            }
-            AppState::ConfirmDelete => {
-                AppUi::render_confirm_delete_screen(frame, app);
-            }
+            AppState::Tab => match app.curr_tab().state {
+                TabState::Tab => AppUi::render_tab_screen(frame, app),
+                TabState::ReadNodeData => AppUi::render_node_data_screen(frame, app),
+                TabState::EditCreateNodePath => {
+                    AppUi::render_edit_create_node_path_screen(frame, app)
+                }
+                TabState::EditCreateNodeData => {
+                    AppUi::render_edit_create_node_data_screen(frame, app)
+                }
+                TabState::EditNodeData => AppUi::render_edit_node_data_screen(frame, app),
+                TabState::DeleteNode => AppUi::render_delete_node_screen(frame, app),
+                TabState::ConfirmDelete => AppUi::render_confirm_delete_screen(frame, app),
+            },
         }
     }
 

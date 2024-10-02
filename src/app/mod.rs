@@ -5,10 +5,7 @@ pub mod state;
 pub mod zk_ops;
 use crate::{node_data::NodeData, tab::Tab};
 use connection::Connection;
-use ratatui::{
-    text::Line,
-    widgets::{ListState, Tabs},
-};
+use ratatui::{text::Line, widgets::Tabs};
 use state::AppState;
 use zookeeper_async::Stat;
 
@@ -22,18 +19,6 @@ pub struct App {
     pub connection_input: String,
     pub curr_tab: usize,
     pub tabs: Vec<Tab>,
-
-    // -//- Moved to Tab struct
-    pub tab_data: Vec<String>,
-    pub list_state: ListState,
-    pub curr_resource: Option<String>, // selected node for current nest level
-    pub prev_resources: Vec<String>,   // prev resources: e.g. /zookeeper/config
-    pub current_node_stat: Option<Stat>,
-    pub message: String,
-    pub node_data: NodeData,
-    pub node_path_buf: String,
-    pub node_data_buf: String,
-    pub input_buf: String,
 }
 
 impl App {
@@ -57,32 +42,32 @@ impl App {
         self.tabs.iter().map(|t| t.title())
     }
 
-    pub fn curr_tab(&self) -> usize {
+    pub fn curr_tab_index(&self) -> usize {
         self.curr_tab
     }
 
     pub fn tabs(&self) -> Tabs {
         Tabs::new(self.tabs_titles())
             .highlight_style(Tab::highlite_style())
-            .select(self.curr_tab())
+            .select(self.curr_tab_index())
     }
 
     fn current_node_stat(&self) -> &Option<Stat> {
-        &self.current_node_stat
+        &self.tabs[self.curr_tab_index()].current_node_stat
     }
 
     pub(crate) fn node_path_buf(&self) -> &String {
-        &self.node_path_buf
+        &self.tabs[self.curr_tab_index()].node_path_buf
     }
     pub(crate) fn node_data_buf(&self) -> &String {
-        &self.node_data_buf
+        &self.tabs[self.curr_tab_index()].node_data_buf
     }
 
     pub(crate) fn node_data(&self) -> &NodeData {
-        &self.node_data
+        &self.tabs[self.curr_tab_index()].node_data
     }
 
     pub(crate) fn input_buf(&self) -> &String {
-        &self.input_buf
+        &self.tabs[self.curr_tab_index()].input_buf
     }
 }
