@@ -109,7 +109,6 @@ impl App {
         let Some(ref zk) = self.zk else {
             return None;
         };
-        // &self.tab_full_resource_path()
         zk.get_children(path, false).await.ok()
     }
 }

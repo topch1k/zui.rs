@@ -12,9 +12,8 @@ use app::{
 use cli::parse_cli;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{prelude::Backend, Terminal};
-use std::{io, time::Duration};
+use std::io;
 use ui::ui_handle::AppUi;
-use zk::LoggingWatcher;
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
@@ -45,7 +44,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         app.zk = zk;
                         let children = app.get_children(BASE_RESOURCE).await;
                         if let Some(children) = children {
-                            if children.len() > 0 {
+                            if !children.is_empty() {
                                 app.store_children(children).await;
                                 app.curr_tab_mut().list_state.select(Some(0));
                             } else {
@@ -92,7 +91,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                             let curr = app.selected_resource();
                             let children = app.get_children(&app.tab_full_resource_path()).await;
                             if let Some(children) = children {
-                                if children.len() > 0 {
+                                if !children.is_empty() {
                                     app.store_children(children).await;
                                     if let Some(curr) = curr {
                                         app.curr_tab_mut().prev_resources.push(curr);
@@ -113,7 +112,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                                 app.curr_tab_mut().prev_resources.pop();
                             let children = app.get_children(&app.tab_full_resource_path()).await;
                             if let Some(children) = children {
-                                if children.len() > 0 {
+                                if !children.is_empty() {
                                     app.store_children(children).await;
                                     app.curr_tab_mut().list_state.select(Some(0));
                                 } else {
@@ -140,7 +139,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                             app.next_tab();
                             let children = app.get_children(&app.tab_full_resource_path()).await;
                             if let Some(children) = children {
-                                if children.len() > 0 {
+                                if !children.is_empty() {
                                     app.store_children(children).await;
                                 } else {
                                     app.set_tab_message(
@@ -153,7 +152,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                             app.previous_tab();
                             let children = app.get_children(&app.tab_full_resource_path()).await;
                             if let Some(children) = children {
-                                if children.len() > 0 {
+                                if !children.is_empty() {
                                     app.store_children(children).await;
                                 } else {
                                     app.set_tab_message(
@@ -271,7 +270,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                                 let children =
                                     app.get_children(&app.tab_full_resource_path()).await;
                                 if let Some(children) = children {
-                                    if children.len() > 0 {
+                                    if !children.is_empty() {
                                         app.store_children(children).await;
                                     } else {
                                         app.set_tab_message(
