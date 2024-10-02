@@ -6,7 +6,7 @@ use connection::Connection;
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
-    style::{Modifier, Style},
+    style::{Modifier, Style, Stylize},
     text::Line,
     widgets::{Clear, List, ListItem, ListState, Paragraph, StatefulWidget, Tabs, Widget, Wrap},
 };
@@ -197,5 +197,26 @@ impl App {
             .wrap(Wrap { trim: true })
             .block(AppUi::delete_node_block())
             .render(area, buf);
+    }
+
+    pub(crate) fn input_buf(&self) -> &String {
+        &self.input_buf
+    }
+
+    pub(crate) fn render_confirm_delete_node(&mut self, area: Rect, buf: &mut Buffer) {
+        let input_rect = AppUi::confirmation_input_rect(area);
+
+        Paragraph::new(self.input_buf().as_str())
+            .wrap(Wrap { trim: true })
+            .block(AppUi::default_styled_block().on_red())
+            .render(input_rect, buf);
+
+        Paragraph::new(format!(
+            "Type DELETE to confirm delete of {}",
+            self.node_path_buf()
+        ))
+        .wrap(Wrap { trim: true })
+        .block(AppUi::confirm_delete_block())
+        .render(area, buf);
     }
 }
