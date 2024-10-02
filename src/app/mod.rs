@@ -70,27 +70,6 @@ impl App {
             .select(self.curr_tab())
     }
 
-    pub fn tab_data(&mut self) -> Vec<ListItem> {
-        self.tab_data
-            .iter()
-            .map(|item| ListItem::new(item.clone()))
-            .collect()
-    }
-
-    pub fn items_list(&self) -> List {
-        let items = self
-            .tab_data
-            .iter()
-            .map(|item| ListItem::new(item.as_str()))
-            .collect::<Vec<ListItem>>();
-
-        let list = List::new(items)
-            .block(AppUi::nodes_block())
-            .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-            .highlight_symbol(">>");
-        list
-    }
-
     pub(crate) fn render_nodes_list(&mut self, area: Rect, buf: &mut Buffer) {
         let items = self
             .tab_data

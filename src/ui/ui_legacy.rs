@@ -199,19 +199,16 @@ impl AppUi {
     }
 
     pub fn render_node_data_screen(frame: &mut Frame, app: &mut App) {
-        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
-        let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
+        AppUi::render_tab_screen(frame, app);
+        let work_rect = AppUi::tab_screen_layout().split(frame.area())[1];
         let data_popup_rect = AppUi::data_popup_rect(work_rect);
 
-        app.render_node_stat(node_stat_rect, frame.buffer_mut());
-        app.render_tabs(tabs_rect, frame.buffer_mut());
-        app.render_nodes_list(nodes_list_rect, frame.buffer_mut());
-        app.render_message_block(msg_rect, frame.buffer_mut());
         app.render_node_data(data_popup_rect, frame.buffer_mut());
     }
 
     pub fn render_edit_create_node_path_screen(frame: &mut Frame, app: &mut App) {
-        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
+        AppUi::render_tab_screen(frame, app);
+        let work_rect = AppUi::tab_screen_layout().split(frame.area())[1];
 
         let data_popup_rect = AppUi::horizontal_equal_layout()
             .split(AppUi::vertical_doubled_layout().split(work_rect)[1])[1];
@@ -219,35 +216,24 @@ impl AppUi {
         let [edit_path_rect, edit_data_rect] =
             AppUi::vertical_double_popup_layout().areas(data_popup_rect);
 
-        let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
-
-        app.render_node_stat(node_stat_rect, frame.buffer_mut());
-        app.render_tabs(tabs_rect, frame.buffer_mut());
-        app.render_nodes_list(nodes_list_rect, frame.buffer_mut());
-        app.render_message_block(msg_rect, frame.buffer_mut());
         app.render_edit_path_active_block(edit_path_rect, frame.buffer_mut());
         app.render_edit_data_non_active_block(edit_data_rect, frame.buffer_mut());
     }
     pub fn render_edit_create_node_data_screen(frame: &mut Frame, app: &mut App) {
-        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
+        AppUi::render_tab_screen(frame, app);
+        let work_rect = AppUi::tab_screen_layout().split(frame.area())[1];
 
         let data_popup_rect = AppUi::horizontal_equal_layout()
             .split(AppUi::vertical_doubled_layout().split(work_rect)[1])[1];
 
         let [edit_path_rect, edit_data_rect] =
             AppUi::vertical_double_popup_layout().areas(data_popup_rect);
-
-        let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
-
-        app.render_node_stat(node_stat_rect, frame.buffer_mut());
-        app.render_tabs(tabs_rect, frame.buffer_mut());
-        app.render_nodes_list(nodes_list_rect, frame.buffer_mut());
-        app.render_message_block(msg_rect, frame.buffer_mut());
         app.render_edit_path_non_active_block(edit_path_rect, frame.buffer_mut());
         app.render_edit_data_active_block(edit_data_rect, frame.buffer_mut());
     }
     pub fn render_edit_node_data_screen(frame: &mut Frame, app: &mut App) {
-        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
+        AppUi::render_tab_screen(frame, app);
+        let work_rect = AppUi::tab_screen_layout().split(frame.area())[1];
 
         let data_popup_rect = AppUi::horizontal_equal_layout()
             .split(AppUi::vertical_doubled_layout().split(work_rect)[1])[1];
@@ -255,41 +241,21 @@ impl AppUi {
         let [curr_data_rect, edited_data_rect] =
             AppUi::vertical_double_popup_layout().areas(data_popup_rect);
 
-        let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
-
-        app.render_node_stat(node_stat_rect, frame.buffer_mut());
-        app.render_tabs(tabs_rect, frame.buffer_mut());
-        app.render_nodes_list(nodes_list_rect, frame.buffer_mut());
-        app.render_message_block(msg_rect, frame.buffer_mut());
-
         app.render_current_node_data(curr_data_rect, frame.buffer_mut());
         app.render_edited_node_data(edited_data_rect, frame.buffer_mut());
     }
 
     fn render_delete_node_screen(frame: &mut Frame, app: &mut App) {
-        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
-
+        AppUi::render_tab_screen(frame, app);
+        let work_rect = AppUi::tab_screen_layout().split(frame.area())[1];
         let data_popup_rect = AppUi::data_popup_rect(work_rect);
-        let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
-
-        app.render_node_stat(node_stat_rect, frame.buffer_mut());
-        app.render_tabs(tabs_rect, frame.buffer_mut());
-        app.render_nodes_list(nodes_list_rect, frame.buffer_mut());
-        app.render_message_block(msg_rect, frame.buffer_mut());
         app.render_delete_node(data_popup_rect, frame.buffer_mut());
     }
 
     fn render_confirm_delete_screen(frame: &mut Frame, app: &mut App) {
-        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
-
+        AppUi::render_tab_screen(frame, app);
+        let work_rect = AppUi::tab_screen_layout().split(frame.area())[1];
         let data_popup_rect = AppUi::data_popup_rect(work_rect);
-
-        let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
-
-        app.render_node_stat(node_stat_rect, frame.buffer_mut());
-        app.render_tabs(tabs_rect, frame.buffer_mut());
-        app.render_nodes_list(nodes_list_rect, frame.buffer_mut());
-        app.render_message_block(msg_rect, frame.buffer_mut());
         app.render_confirm_delete_node(data_popup_rect, frame.buffer_mut())
     }
 }
