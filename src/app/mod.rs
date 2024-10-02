@@ -1,16 +1,9 @@
 pub mod connection;
 pub mod navigation;
-
+pub mod zk_ops;
 use connection::Connection;
-use core::fmt;
-use futures::TryFutureExt;
-use ratatui::{
-    style::{Style, Stylize},
-    text::Line,
-    widgets::{List, ListState},
-};
-use std::{cmp::min, mem, net::IpAddr, vec};
-use zookeeper_async::{Acl, Stat};
+use ratatui::widgets::ListState;
+use zookeeper_async::Stat;
 
 use crate::{app_legacy::AppState, node_data::NodeData, tab::Tab};
 
