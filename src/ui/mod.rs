@@ -1,4 +1,4 @@
-pub mod ui_legacy;
-pub mod tab_screen;
-pub mod layout;
 pub mod blocks;
+pub mod layout;
+pub mod rects;
+pub mod ui_legacy;
