@@ -10,8 +10,8 @@ use app::{state::AppState, App};
 use cli::parse_cli;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{prelude::Backend, Terminal};
+use ui::ui_legacy::AppUi;
 use std::{io, time::Duration};
-use ui::AppUi;
 use zk::LoggingWatcher;
 
 #[tokio::main]
@@ -56,21 +56,19 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                     KeyCode::Char('q') => break Result::Ok(()),
                     _ => {}
                 },
-                AppState::EditingConnection if key.kind == KeyEventKind::Press => {
-                    match key.code {
-                        KeyCode::Esc => app.state = AppState::EstablishingConnection,
-                        KeyCode::Enter => {
-                            app.state = AppState::EstablishingConnection;
-                        }
-                        KeyCode::Char(value) => {
-                            app.connection_input.push(value);
-                        }
-                        KeyCode::Backspace => {
-                            app.connection_input.pop();
-                        }
-                        _ => {}
+                AppState::EditingConnection if key.kind == KeyEventKind::Press => match key.code {
+                    KeyCode::Esc => app.state = AppState::EstablishingConnection,
+                    KeyCode::Enter => {
+                        app.state = AppState::EstablishingConnection;
                     }
-                }
+                    KeyCode::Char(value) => {
+                        app.connection_input.push(value);
+                    }
+                    KeyCode::Backspace => {
+                        app.connection_input.pop();
+                    }
+                    _ => {}
+                },
                 AppState::Tab => match key.code {
                     KeyCode::Char('j') | KeyCode::Down => {
                         app.next();

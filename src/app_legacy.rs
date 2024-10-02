@@ -1,21 +1,10 @@
-// pub mod connection;
-// pub mod navigation;
-
-use core::fmt;
-use futures::TryFutureExt;
+use crate::app::{App, BASE_RESOURCE, CONFIRMATION_STRING};
 use ratatui::{
     style::{Style, Stylize},
     text::Line,
-    widgets::{List, ListState},
+    widgets::List,
 };
-use std::{cmp::min, mem, net::IpAddr, vec};
-use zookeeper_async::{Acl, Stat};
-
-use crate::{
-    app::{App, BASE_RESOURCE, CONFIRMATION_STRING},
-    node_data::NodeData,
-    tab::Tab,
-};
+use std::{mem, vec};
 
 impl App {
     pub fn selected_resource(&self) -> Option<String> {

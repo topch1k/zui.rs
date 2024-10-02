@@ -13,16 +13,6 @@ use crate::app::{state::AppState, App};
 pub struct AppUi {}
 
 impl AppUi {
-    pub fn default_layout() -> Layout {
-        Layout::new(
-            ratatui::layout::Direction::Horizontal,
-            [
-                ratatui::layout::Constraint::Fill(3),
-                ratatui::layout::Constraint::Fill(1),
-            ],
-        )
-    }
-
     pub fn ui(frame: &mut Frame, app: &mut App) {
         match app.state {
             AppState::EstablishingConnection => {
@@ -203,39 +193,15 @@ impl AppUi {
             .highlight_style(highlight_style)
             .select(selected_tab_index);
 
-        let [tabs_rect, work_rect, msg_rect] = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Percentage(85),
-                Constraint::Fill(5),
-            ],
-        )
-        .areas(frame.area());
+        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
 
         frame.render_widget(tabs, tabs_rect);
 
-        let [nodes_list_rect, node_stat_rect] = Layout::new(
-            ratatui::layout::Direction::Horizontal,
-            vec![Constraint::Fill(3), Constraint::Fill(1)],
-        )
-        .areas(work_rect);
+        let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
 
-        let msg_paragraph = Paragraph::new(app.message.as_str()).block(
-            Block::default()
-                .title("Message")
-                .borders(Borders::ALL)
-                .border_set(symbols::border::THICK)
-                .on_gray()
-                .title_alignment(Alignment::Left),
-        );
+        let msg_paragraph = Paragraph::new(app.message.as_str()).block(AppUi::message_block());
 
-        let info_block = Block::default()
-            .title("Node Stat")
-            .borders(Borders::ALL)
-            .border_set(symbols::border::THICK)
-            .on_gray()
-            .title_alignment(Alignment::Center);
+        let info_block = AppUi::info_block();
 
         let node_stat = &app.current_node_stat;
         match node_stat {
@@ -249,13 +215,7 @@ impl AppUi {
             }
         }
 
-        let nodes_block = Block::default()
-            .title("Nodes")
-            .borders(Borders::ALL)
-            .border_set(symbols::border::THICK)
-            .on_gray()
-            .title_alignment(Alignment::Left)
-            .title_bottom("(q)uit | ↑ to Up | ↓ to Down | Enter to dir Down | Esc to dir Up | (C)reate Node | (D)elete Node");
+        let nodes_block = AppUi::nodes_block();
 
         let items = app
             .tab_data
@@ -281,15 +241,7 @@ impl AppUi {
             .highlight_style(highlight_style)
             .select(selected_tab_index);
 
-        let [tabs_rect, work_rect, msg_rect] = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Percentage(85),
-                Constraint::Fill(5),
-            ],
-        )
-        .areas(frame.area());
+        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
 
         frame.render_widget(tabs, tabs_rect);
 
