@@ -1,8 +1,8 @@
 pub mod connection;
 pub mod navigation;
+pub mod render;
 pub mod state;
 pub mod zk_ops;
-pub mod render;
 use connection::Connection;
 use ratatui::{
     buffer::Buffer,
@@ -71,13 +71,9 @@ impl App {
             .select(self.curr_tab())
     }
 
-    
-
     fn current_node_stat(&self) -> &Option<Stat> {
         &self.current_node_stat
     }
-
-    
 
     pub(crate) fn node_path_buf(&self) -> &String {
         &self.node_path_buf
@@ -93,6 +89,4 @@ impl App {
     pub(crate) fn input_buf(&self) -> &String {
         &self.input_buf
     }
-
-    
 }

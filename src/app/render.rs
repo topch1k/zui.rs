@@ -92,7 +92,7 @@ impl App {
     pub(crate) fn render_edited_node_data(&mut self, area: Rect, buf: &mut Buffer) {
         Paragraph::new(self.node_data_buf().to_string())
             .wrap(Wrap { trim: true })
-            .block(AppUi::current_data_block())
+            .block(AppUi::edited_data_block())
             .render(area, buf);
     }
 

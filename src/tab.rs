@@ -32,20 +32,7 @@ impl Tab {
             .into()
     }
 
-    pub fn highlite_style() -> (Color, Color){
+    pub fn highlite_style() -> (Color, Color) {
         (Color::default(), tailwind::AMBER.c700)
-    }
-
-    pub fn render_tab(&self, area: Rect, buf: &mut Buffer) {
-        Paragraph::new("Hello, World!")
-            .block(self.block())
-            .render(area, buf);
-    }
-
-    pub fn block(&self) -> Block<'static> {
-        Block::bordered()
-            .border_set(symbols::border::PROPORTIONAL_TALL)
-            .padding(Padding::horizontal(1))
-            .border_style(tailwind::BLUE.c700)
     }
 }
