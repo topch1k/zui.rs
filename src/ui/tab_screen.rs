@@ -1,5 +1,5 @@
 use ratatui::{
-    layout::{Alignment, Constraint, Layout},
+    layout::{Alignment, Constraint, Layout, Rect},
     style::Stylize,
     symbols,
     widgets::{Block, Borders},
@@ -51,5 +51,33 @@ impl AppUi {
             .title("Nodes")
             .title_alignment(Alignment::Left)
             .title_bottom("(q)uit | ↑ to Up | ↓ to Down | Enter to dir Down | Esc to dir Up | (C)reate Node | (D)elete Node")
+    }
+
+    pub(crate) fn node_data_block() -> Block<'static> {
+        AppUi::default_styled_block()
+            .title("Node Data")
+            .on_dark_gray()
+            .title_alignment(Alignment::Center)
+            .title_bottom("ESC to cancel | (J)son | (S)tring | (R)aw | (E)dit")
+    }
+
+    pub(crate) fn data_popup_rect(work_rect: Rect) -> Rect {
+        AppUi::horizontal_equal_layout().split(AppUi::vertical_equal_layout().split(work_rect)[1])
+            [1]
+    }
+
+    pub(crate) fn vertical_equal_layout() -> Layout {
+        Layout::vertical(vec![
+            Constraint::Fill(1),
+            Constraint::Fill(1),
+            Constraint::Fill(1),
+        ])
+    }
+    pub(crate) fn horizontal_equal_layout() -> Layout {
+        Layout::horizontal(vec![
+            Constraint::Fill(1),
+            Constraint::Fill(1),
+            Constraint::Fill(1),
+        ])
     }
 }

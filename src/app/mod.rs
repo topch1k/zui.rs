@@ -3,7 +3,10 @@ pub mod navigation;
 pub mod state;
 pub mod zk_ops;
 use connection::Connection;
-use ratatui::widgets::ListState;
+use ratatui::{
+    text::Line,
+    widgets::{ListItem, ListState, Tabs},
+};
 use state::AppState;
 use zookeeper_async::Stat;
 
@@ -48,5 +51,26 @@ impl App {
             Some(ref conn) => conn.to_string(),
             None => "".to_owned(),
         }
+    }
+
+    pub fn tabs_titles(&self) -> impl Iterator<Item = Line> {
+        self.tabs.iter().map(|t| t.title())
+    }
+
+    pub fn curr_tab(&self) -> usize {
+        self.curr_tab
+    }
+
+    pub fn tabs(&self) -> Tabs {
+        Tabs::new(self.tabs_titles())
+            .highlight_style(Tab::highlite_style())
+            .select(self.curr_tab())
+    }
+
+    pub fn tab_data(&mut self) -> Vec<ListItem> {
+        self.tab_data
+            .iter()
+            .map(|item| ListItem::new(item.clone()))
+            .collect()
     }
 }

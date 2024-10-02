@@ -1,7 +1,8 @@
+use clap::builder::styling::Style;
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
-    style::{palette::tailwind, Stylize},
+    style::{palette::tailwind, Color, Stylize},
     symbols,
     text::Line,
     widgets::{Block, ListState, Padding, Paragraph, Widget},
@@ -29,6 +30,10 @@ impl Tab {
             .fg(tailwind::SLATE.c200)
             .bg(tailwind::BLUE.c900)
             .into()
+    }
+
+    pub fn highlite_style() -> (Color, Color){
+        (Color::default(), tailwind::AMBER.c700)
     }
 
     pub fn render_tab(&self, area: Rect, buf: &mut Buffer) {
