@@ -6,8 +6,7 @@ pub mod tab;
 pub mod ui;
 pub mod zk;
 
-use app::App;
-use app_legacy::AppState;
+use app::{state::AppState, App};
 use cli::parse_cli;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{prelude::Backend, Terminal};
@@ -36,7 +35,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                 continue;
             }
             match app.state {
-                app_legacy::AppState::EstablishingConnection => match key.code {
+                AppState::EstablishingConnection => match key.code {
                     KeyCode::Esc => break Result::Ok(()),
                     KeyCode::Enter => {
                         let connection_string = app.connection_input.clone();
@@ -57,7 +56,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                     KeyCode::Char('q') => break Result::Ok(()),
                     _ => {}
                 },
-                app_legacy::AppState::EditingConnection if key.kind == KeyEventKind::Press => {
+                AppState::EditingConnection if key.kind == KeyEventKind::Press => {
                     match key.code {
                         KeyCode::Esc => app.state = AppState::EstablishingConnection,
                         KeyCode::Enter => {
@@ -72,7 +71,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         _ => {}
                     }
                 }
-                app_legacy::AppState::Tab => match key.code {
+                AppState::Tab => match key.code {
                     KeyCode::Char('j') | KeyCode::Down => {
                         app.next();
                         app.curr_resource = app.selected_resource();

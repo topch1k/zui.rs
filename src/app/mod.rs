@@ -1,11 +1,13 @@
 pub mod connection;
 pub mod navigation;
+pub mod state;
 pub mod zk_ops;
 use connection::Connection;
 use ratatui::widgets::ListState;
+use state::AppState;
 use zookeeper_async::Stat;
 
-use crate::{app_legacy::AppState, node_data::NodeData, tab::Tab};
+use crate::{node_data::NodeData, tab::Tab};
 
 pub const BASE_RESOURCE: &str = "/";
 pub const CONFIRMATION_STRING: &str = "DELETE";
