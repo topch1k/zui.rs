@@ -5,7 +5,7 @@ use ratatui::{
     style::{palette::tailwind, Color, Modifier, Style, Stylize},
     symbols,
     text::Line,
-    widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Tabs, Wrap},
+    widgets::{Block, Borders, Clear, List, ListItem, Paragraph, StatefulWidget, Tabs, Wrap},
     Frame,
 };
 
@@ -189,51 +189,13 @@ impl AppUi {
     }
 
     pub fn render_tab_screen(frame: &mut Frame, app: &mut App) {
-        let titles = app.tabs.iter().map(|t| t.title());
-        let highlight_style = (Color::default(), tailwind::AMBER.c700);
-        let selected_tab_index = app.curr_tab;
-
-        let tabs = Tabs::new(titles)
-            .highlight_style(highlight_style)
-            .select(selected_tab_index);
-
         let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
-
-        frame.render_widget(tabs, tabs_rect);
-
         let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
 
-        let msg_paragraph = Paragraph::new(app.message.as_str()).block(AppUi::message_block());
-
-        let info_block = AppUi::info_block();
-
-        let node_stat = &app.current_node_stat;
-        match node_stat {
-            Some(_) => {
-                frame.render_widget(Clear, node_stat_rect);
-                let stat_list = app.stat_list().block(info_block);
-                frame.render_widget(stat_list, node_stat_rect);
-            }
-            None => {
-                frame.render_widget(info_block, node_stat_rect);
-            }
-        }
-
-        let nodes_block = AppUi::nodes_block();
-
-        let items = app
-            .tab_data
-            .iter()
-            .map(|item| ListItem::new(item.as_str()))
-            .collect::<Vec<ListItem>>();
-
-        let list = List::new(items)
-            .block(nodes_block)
-            .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-            .highlight_symbol(">>");
-
-        frame.render_stateful_widget(list, nodes_list_rect, &mut app.list_state);
-        frame.render_widget(msg_paragraph, msg_rect);
+        app.render_node_stat(node_stat_rect, frame.buffer_mut());
+        app.render_tabs(tabs_rect, frame.buffer_mut());
+        app.render_nodes_list(nodes_list_rect, frame.buffer_mut());
+        app.render_message_block(msg_rect, frame.buffer_mut());
     }
 
     pub fn render_node_data_screen(frame: &mut Frame, app: &mut App) {
@@ -252,20 +214,16 @@ impl AppUi {
 
         let msg_paragraph = Paragraph::new(app.message.clone()).block(AppUi::message_block());
 
-        let info_block = AppUi::info_block();
-
-        let node_stat = &app.current_node_stat;
-        match node_stat {
+        match &app.current_node_stat {
             Some(_) => {
                 frame.render_widget(Clear, node_stat_rect);
-                let stat_list = app.stat_list().block(info_block);
+                let stat_list = app.stat_list().block(AppUi::info_block());
                 frame.render_widget(stat_list, node_stat_rect);
             }
             None => {
-                frame.render_widget(info_block, node_stat_rect);
+                frame.render_widget(AppUi::info_block(), node_stat_rect);
             }
         }
-
         let nodes_block = AppUi::nodes_block();
 
         let items = app
@@ -308,20 +266,16 @@ impl AppUi {
 
         let msg_paragraph = Paragraph::new(app.message.as_str()).block(AppUi::message_block());
 
-        let info_block = AppUi::info_block();
-
-        let node_stat = &app.current_node_stat;
-        match node_stat {
+        match &app.current_node_stat {
             Some(_) => {
                 frame.render_widget(Clear, node_stat_rect);
-                let stat_list = app.stat_list().block(info_block);
+                let stat_list = app.stat_list().block(AppUi::info_block());
                 frame.render_widget(stat_list, node_stat_rect);
             }
             None => {
-                frame.render_widget(info_block, node_stat_rect);
+                frame.render_widget(AppUi::info_block(), node_stat_rect);
             }
         }
-
         let nodes_block = AppUi::nodes_block();
 
         let items = app
@@ -364,20 +318,16 @@ impl AppUi {
 
         let msg_paragraph = Paragraph::new(app.message.as_str()).block(AppUi::message_block());
 
-        let info_block = AppUi::info_block();
-
-        let node_stat = &app.current_node_stat;
-        match node_stat {
+        match &app.current_node_stat {
             Some(_) => {
                 frame.render_widget(Clear, node_stat_rect);
-                let stat_list = app.stat_list().block(info_block);
+                let stat_list = app.stat_list().block(AppUi::info_block());
                 frame.render_widget(stat_list, node_stat_rect);
             }
             None => {
-                frame.render_widget(info_block, node_stat_rect);
+                frame.render_widget(AppUi::info_block(), node_stat_rect);
             }
         }
-
         let nodes_block = AppUi::nodes_block();
 
         let items = app
@@ -420,20 +370,16 @@ impl AppUi {
 
         let msg_paragraph = Paragraph::new(app.message.as_str()).block(AppUi::message_block());
 
-        let info_block = AppUi::info_block();
-
-        let node_stat = &app.current_node_stat;
-        match node_stat {
+        match &app.current_node_stat {
             Some(_) => {
                 frame.render_widget(Clear, node_stat_rect);
-                let stat_list = app.stat_list().block(info_block);
+                let stat_list = app.stat_list().block(AppUi::info_block());
                 frame.render_widget(stat_list, node_stat_rect);
             }
             None => {
-                frame.render_widget(info_block, node_stat_rect);
+                frame.render_widget(AppUi::info_block(), node_stat_rect);
             }
         }
-
         let nodes_block = AppUi::nodes_block();
 
         let items = app
@@ -469,20 +415,16 @@ impl AppUi {
 
         let msg_paragraph = Paragraph::new(app.message.as_str()).block(AppUi::message_block());
 
-        let info_block = AppUi::info_block();
-
-        let node_stat = &app.current_node_stat;
-        match node_stat {
+        match &app.current_node_stat {
             Some(_) => {
                 frame.render_widget(Clear, node_stat_rect);
-                let stat_list = app.stat_list().block(info_block);
+                let stat_list = app.stat_list().block(AppUi::info_block());
                 frame.render_widget(stat_list, node_stat_rect);
             }
             None => {
-                frame.render_widget(info_block, node_stat_rect);
+                frame.render_widget(AppUi::info_block(), node_stat_rect);
             }
         }
-
         let nodes_block = AppUi::nodes_block();
 
         let items = app
@@ -527,20 +469,16 @@ impl AppUi {
 
         let msg_paragraph = Paragraph::new(app.message.as_str()).block(AppUi::message_block());
 
-        let info_block = AppUi::info_block();
-
-        let node_stat = &app.current_node_stat;
-        match node_stat {
+        match &app.current_node_stat {
             Some(_) => {
                 frame.render_widget(Clear, node_stat_rect);
-                let stat_list = app.stat_list().block(info_block);
+                let stat_list = app.stat_list().block(AppUi::info_block());
                 frame.render_widget(stat_list, node_stat_rect);
             }
             None => {
-                frame.render_widget(info_block, node_stat_rect);
+                frame.render_widget(AppUi::info_block(), node_stat_rect);
             }
         }
-
         let nodes_block = AppUi::nodes_block();
 
         let items = app
