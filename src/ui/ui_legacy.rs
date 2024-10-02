@@ -266,7 +266,7 @@ impl AppUi {
             }
         }
 
-        let nodes_block = AppUi::node;
+        let nodes_block = AppUi::nodes_block();
 
         let items = app
             .tab_data
@@ -285,96 +285,30 @@ impl AppUi {
     }
 
     pub fn render_edit_create_node_path_screen(frame: &mut Frame, app: &mut App) {
-        let titles = app.tabs.iter().map(|t| t.title());
-        let highlight_style = (Color::default(), tailwind::AMBER.c700);
-        let selected_tab_index = app.curr_tab;
+        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
 
-        let tabs = Tabs::new(titles)
-            .highlight_style(highlight_style)
-            .select(selected_tab_index);
-
-        let [tabs_rect, work_rect, msg_rect] = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Percentage(85),
-                Constraint::Fill(5),
-            ],
-        )
-        .areas(frame.area());
-
+        let tabs = app.tabs();
         frame.render_widget(tabs, tabs_rect);
 
-        let data_popup_rect = Layout::new(
-            ratatui::layout::Direction::Horizontal,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-            ],
-        )
-        .split(
-            Layout::new(
-                ratatui::layout::Direction::Vertical,
-                vec![
-                    Constraint::Fill(1),
-                    Constraint::Fill(2),
-                    Constraint::Fill(1),
-                ],
-            )
-            .split(work_rect)[1],
-        )[1];
+        let data_popup_rect = AppUi::horizontal_equal_layout()
+            .split(AppUi::vertical_doubled_layout().split(work_rect)[1])[1];
 
-        let [edit_path_rect, edit_data_rect] = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![Constraint::Fill(1), Constraint::Fill(1)],
-        )
-        .areas(data_popup_rect);
+        let [edit_path_rect, edit_data_rect] =
+            AppUi::vertical_double_popup_layout().areas(data_popup_rect);
 
         let edit_create_node_path_paragraph = Paragraph::new(app.node_path_buf.as_str())
             .wrap(Wrap { trim: true })
-            .block(
-                Block::default()
-                    .title("Edit Path")
-                    .borders(Borders::ALL)
-                    .border_set(symbols::border::THICK)
-                    .on_blue()
-                    .title_alignment(Alignment::Center),
-            );
+            .block(AppUi::edit_path_active_block());
 
         let edit_create_node_data_paragraph = Paragraph::new(app.node_data_buf.as_str())
             .wrap(Wrap { trim: true })
-            .block(
-                Block::default()
-                    .title("Edit Data")
-                    .borders(Borders::ALL)
-                    .border_set(symbols::border::THICK)
-                    .on_light_blue()
-                    .title_alignment(Alignment::Center)
-                    .title_bottom("ESC to cancel | Enter to Create | Tab to Change Window"),
-            );
+            .block(AppUi::edit_data_non_active_block());
 
-        let [nodes_list_rect, node_stat_rect] = Layout::new(
-            ratatui::layout::Direction::Horizontal,
-            vec![Constraint::Fill(3), Constraint::Fill(1)],
-        )
-        .areas(work_rect);
+        let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
 
-        let msg_paragraph = Paragraph::new(app.message.as_str()).block(
-            Block::default()
-                .title("Message")
-                .borders(Borders::ALL)
-                .border_set(symbols::border::THICK)
-                .on_gray()
-                .title_alignment(Alignment::Left),
-        );
+        let msg_paragraph = Paragraph::new(app.message.as_str()).block(AppUi::message_block());
 
-        let info_block = Block::default()
-            .title("Node Stat")
-            .borders(Borders::ALL)
-            .border_set(symbols::border::THICK)
-            .on_gray()
-            .title_alignment(Alignment::Center);
+        let info_block = AppUi::info_block();
 
         let node_stat = &app.current_node_stat;
         match node_stat {
@@ -388,12 +322,7 @@ impl AppUi {
             }
         }
 
-        let nodes_block = Block::default()
-            .title("Nodes")
-            .borders(Borders::ALL)
-            .border_set(symbols::border::THICK)
-            .on_gray()
-            .title_alignment(Alignment::Left);
+        let nodes_block = AppUi::nodes_block();
 
         let items = app
             .tab_data
@@ -420,15 +349,7 @@ impl AppUi {
             .highlight_style(highlight_style)
             .select(selected_tab_index);
 
-        let [tabs_rect, work_rect, msg_rect] = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Percentage(85),
-                Constraint::Fill(5),
-            ],
-        )
-        .areas(frame.area());
+        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
 
         frame.render_widget(tabs, tabs_rect);
 
@@ -547,15 +468,7 @@ impl AppUi {
             .highlight_style(highlight_style)
             .select(selected_tab_index);
 
-        let [tabs_rect, work_rect, msg_rect] = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Percentage(85),
-                Constraint::Fill(5),
-            ],
-        )
-        .areas(frame.area());
+        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
 
         frame.render_widget(tabs, tabs_rect);
 
@@ -675,15 +588,7 @@ impl AppUi {
             .highlight_style(highlight_style)
             .select(selected_tab_index);
 
-        let [tabs_rect, work_rect, msg_rect] = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Percentage(85),
-                Constraint::Fill(5),
-            ],
-        )
-        .areas(frame.area());
+        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
 
         frame.render_widget(tabs, tabs_rect);
 
@@ -785,15 +690,7 @@ impl AppUi {
             .highlight_style(highlight_style)
             .select(selected_tab_index);
 
-        let [tabs_rect, work_rect, msg_rect] = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Percentage(85),
-                Constraint::Fill(5),
-            ],
-        )
-        .areas(frame.area());
+        let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
 
         frame.render_widget(tabs, tabs_rect);
 

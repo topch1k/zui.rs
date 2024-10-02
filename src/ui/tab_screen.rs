@@ -73,11 +73,52 @@ impl AppUi {
             Constraint::Fill(1),
         ])
     }
+    pub(crate) fn vertical_doubled_layout() -> Layout {
+        Layout::vertical(vec![
+            Constraint::Fill(1),
+            Constraint::Fill(2),
+            Constraint::Fill(1),
+        ])
+    }
     pub(crate) fn horizontal_equal_layout() -> Layout {
         Layout::horizontal(vec![
             Constraint::Fill(1),
             Constraint::Fill(1),
             Constraint::Fill(1),
         ])
+    }
+
+    pub(crate) fn vertical_double_popup_layout() -> Layout {
+        Layout::vertical(vec![Constraint::Fill(1), Constraint::Fill(1)])
+    }
+
+    pub(crate) fn edit_path_active_block() -> Block<'static> {
+        AppUi::default_styled_block()
+            .title("Edit Path")
+            .on_blue()
+            .title_alignment(Alignment::Center)
+    }
+
+    pub(crate) fn edit_path_non_active_block() -> Block<'static> {
+        AppUi::default_styled_block()
+            .title("Edit Path")
+            .on_light_blue()
+            .title_alignment(Alignment::Center)
+    }
+
+    pub(crate) fn edit_data_non_active_block() -> Block<'static> {
+        Block::default()
+            .title("Edit Data")
+            .on_light_blue()
+            .title_alignment(Alignment::Center)
+            .title_bottom("ESC to cancel | Enter to Create | Tab to Change Window")
+    }
+
+    pub(crate) fn edit_data_active_block() -> Block<'static> {
+        Block::default()
+            .title("Edit Data")
+            .on_blue()
+            .title_alignment(Alignment::Center)
+            .title_bottom("ESC to cancel | Enter to Create | Tab to Change Window")
     }
 }
