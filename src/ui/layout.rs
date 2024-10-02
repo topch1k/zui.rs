@@ -1,6 +1,6 @@
 use ratatui::layout::{Constraint, Layout};
 
-use super::ui_legacy::AppUi;
+use super::ui_handle::AppUi;
 
 impl AppUi {
     pub(crate) fn tab_screen_layout() -> Layout {

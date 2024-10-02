@@ -1,15 +1,10 @@
-use clap::builder::styling::Style;
+use crate::node_data::NodeData;
 use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
     style::{palette::tailwind, Color, Stylize},
-    symbols,
     text::Line,
-    widgets::{Block, ListState, Padding, Paragraph, Widget},
+    widgets::ListState,
 };
 use zookeeper_async::Stat;
-
-use crate::node_data::NodeData;
 #[derive(Debug, Default)]
 pub struct Tab {
     pub tab_data: Vec<String>,

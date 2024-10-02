@@ -40,7 +40,6 @@ impl AppUi {
             AppState::ConfirmDelete => {
                 AppUi::render_confirm_delete_screen(frame, app);
             }
-            _ => {}
         }
     }
 

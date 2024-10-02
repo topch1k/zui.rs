@@ -10,7 +10,7 @@ use app::{state::AppState, App};
 use cli::parse_cli;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{prelude::Backend, Terminal};
-use ui::ui_legacy::AppUi;
+use ui::ui_handle::AppUi;
 use std::{io, time::Duration};
 use zk::LoggingWatcher;
 

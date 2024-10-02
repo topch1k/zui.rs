@@ -3,18 +3,14 @@ pub mod navigation;
 pub mod render;
 pub mod state;
 pub mod zk_ops;
+use crate::{node_data::NodeData, tab::Tab};
 use connection::Connection;
 use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
-    style::{Modifier, Style, Stylize},
     text::Line,
-    widgets::{Clear, List, ListItem, ListState, Paragraph, StatefulWidget, Tabs, Widget, Wrap},
+    widgets::{ListState, Tabs},
 };
 use state::AppState;
 use zookeeper_async::Stat;
-
-use crate::{node_data::NodeData, tab::Tab, ui::ui_legacy::AppUi};
 
 pub const BASE_RESOURCE: &str = "/";
 pub const CONFIRMATION_STRING: &str = "DELETE";

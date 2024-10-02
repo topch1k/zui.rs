@@ -5,7 +5,7 @@ use ratatui::{
     widgets::{Block, Borders},
 };
 
-use super::ui_legacy::AppUi;
+use super::ui_handle::AppUi;
 
 impl AppUi {
     pub(crate) fn default_styled_block() -> Block<'static> {

@@ -5,7 +5,7 @@ use ratatui::{
     widgets::{Clear, List, ListItem, Paragraph, StatefulWidget, Widget, Wrap},
 };
 
-use crate::ui::ui_legacy::AppUi;
+use crate::ui::ui_handle::AppUi;
 
 use super::App;
 

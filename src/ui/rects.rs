@@ -1,6 +1,6 @@
 use ratatui::layout::{Constraint, Layout, Rect};
 
-use super::ui_legacy::AppUi;
+use super::ui_handle::AppUi;
 
 impl AppUi {
     pub(crate) fn data_popup_rect(work_rect: Rect) -> Rect {
