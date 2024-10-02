@@ -1,3 +1,6 @@
+// pub mod connection;
+// pub mod navigation;
+
 use core::fmt;
 use futures::TryFutureExt;
 use ratatui::{
@@ -8,101 +11,33 @@ use ratatui::{
 use std::{cmp::min, mem, net::IpAddr, vec};
 use zookeeper_async::{Acl, Stat};
 
-use crate::{node_data::NodeData, tab::Tab};
+use crate::{app::{App, BASE_RESOURCE, CONFIRMATION_STRING}, node_data::NodeData, tab::Tab};
 
-const BASE_RESOURCE: &str = "/";
-const CONFIRMATION_STRING: &str = "DELETE";
-#[derive(Default)]
-pub struct App {
-    pub state: AppState,
-    pub connection: Option<Connection>,
-    pub zk: Option<zookeeper_async::ZooKeeper>,
-    pub connection_input: String,
-    pub curr_tab: usize,
-    pub tabs: Vec<Tab>,
+// const BASE_RESOURCE: &str = "/";
+// const CONFIRMATION_STRING: &str = "DELETE";
+// #[derive(Default)]
+// pub struct App {
+//     pub state: AppState,
+//     pub connection: Option<Connection>,
+//     pub zk: Option<zookeeper_async::ZooKeeper>,
+//     pub connection_input: String,
+//     pub curr_tab: usize,
+//     pub tabs: Vec<Tab>,
 
-    // -//- Moved to Tab struct
-    pub tab_data: Vec<String>,
-    pub list_state: ListState,
-    pub curr_resource: Option<String>, // selected node for current nest level
-    pub prev_resources: Vec<String>,   // prev resources: e.g. /zookeeper/config
-    pub current_node_stat: Option<Stat>,
-    pub message: String,
-    pub node_data: NodeData,
-    pub node_path_buf: String,
-    pub node_data_buf: String,
-    pub input_buf: String,
-}
-
-#[derive(Debug)]
-pub struct Connection {
-    pub addr: IpAddr,
-    pub port: u16,
-}
-
-impl fmt::Display for Connection {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{}", self.addr, self.port)
-    }
-}
+//     // -//- Moved to Tab struct
+//     pub tab_data: Vec<String>,
+//     pub list_state: ListState,
+//     pub curr_resource: Option<String>, // selected node for current nest level
+//     pub prev_resources: Vec<String>,   // prev resources: e.g. /zookeeper/config
+//     pub current_node_stat: Option<Stat>,
+//     pub message: String,
+//     pub node_data: NodeData,
+//     pub node_path_buf: String,
+//     pub node_data_buf: String,
+//     pub input_buf: String,
+// }
 
 impl App {
-    pub fn new(connection: Connection) -> Self {
-        Self {
-            connection_input: connection.to_string(),
-            connection: Some(connection),
-            tabs: vec![Tab::default(), Tab::default(), Tab::default()],
-            curr_tab: 0usize,
-            ..Default::default()
-        }
-    }
-    pub fn connection_str(&self) -> String {
-        match self.connection {
-            Some(ref conn) => conn.to_string(),
-            None => "".to_owned(),
-        }
-    }
-
-    pub fn next(&mut self) {
-        let i = match self.list_state.selected() {
-            Some(i) => {
-                if i >= self.tab_data.len() - 1 {
-                    0
-                } else {
-                    i + 1
-                }
-            }
-            None => 0,
-        };
-        self.list_state.select(Some(i));
-    }
-    pub fn previous(&mut self) {
-        let i = match self.list_state.selected() {
-            Some(i) => {
-                if i == 0 {
-                    self.tab_data.len() - 1
-                } else {
-                    i - 1
-                }
-            }
-            None => 0,
-        };
-        self.list_state.select(Some(i));
-    }
-    fn tabs_len(&self) -> usize {
-        self.tabs.len()
-    }
-    fn current_tab(&self) -> usize {
-        self.curr_tab
-    }
-    pub fn next_tab(&mut self) {
-        self.curr_tab = min(self.current_tab() + 1, self.tabs_len() - 1);
-    }
-
-    pub fn previous_tab(&mut self) {
-        self.curr_tab = self.current_tab().saturating_sub(1);
-    }
-
     pub fn selected_resource(&self) -> Option<String> {
         let selected_offset = self.list_state.selected();
         match selected_offset {

@@ -8,7 +8,7 @@ use ratatui::{
     Frame,
 };
 
-use crate::app::{App, AppState};
+use crate::{app::App, app_legacy::AppState};
 
 pub struct AppUi {}
 

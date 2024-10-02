@@ -1,6 +1,5 @@
+use crate::app::connection::Connection;
 use clap::Parser;
-
-use crate::app::Connection;
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
