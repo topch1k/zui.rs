@@ -191,4 +191,11 @@ impl App {
             .block(AppUi::current_data_block())
             .render(area, buf);
     }
+
+    pub(crate) fn render_delete_node(&mut self, area: Rect, buf: &mut Buffer) {
+        Paragraph::new(self.node_path_buf().as_str())
+            .wrap(Wrap { trim: true })
+            .block(AppUi::delete_node_block())
+            .render(area, buf);
+    }
 }

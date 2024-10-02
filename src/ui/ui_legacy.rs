@@ -269,45 +269,14 @@ impl AppUi {
     fn render_delete_node_screen(frame: &mut Frame, app: &mut App) {
         let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
 
-        let tabs = app.tabs();
-        frame.render_widget(tabs, tabs_rect);
-
         let data_popup_rect = AppUi::data_popup_rect(work_rect);
-
-        let edit_create_node_path_paragraph = Paragraph::new(app.node_path_buf.as_str())
-            .wrap(Wrap { trim: true })
-            .block(AppUi::delete_node_block());
-
         let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
 
-        let msg_paragraph = Paragraph::new(app.message.as_str()).block(AppUi::message_block());
-
-        match &app.current_node_stat {
-            Some(_) => {
-                frame.render_widget(Clear, node_stat_rect);
-                let stat_list = app.stat_list().block(AppUi::info_block());
-                frame.render_widget(stat_list, node_stat_rect);
-            }
-            None => {
-                frame.render_widget(AppUi::info_block(), node_stat_rect);
-            }
-        }
-        let nodes_block = AppUi::nodes_block();
-
-        let items = app
-            .tab_data
-            .iter()
-            .map(|item| ListItem::new(item.as_str()))
-            .collect::<Vec<ListItem>>();
-
-        let list = List::new(items)
-            .block(nodes_block)
-            .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-            .highlight_symbol(">>");
-
-        frame.render_stateful_widget(list, nodes_list_rect, &mut app.list_state);
-        frame.render_widget(msg_paragraph, msg_rect);
-        frame.render_widget(edit_create_node_path_paragraph, data_popup_rect);
+        app.render_node_stat(node_stat_rect, frame.buffer_mut());
+        app.render_tabs(tabs_rect, frame.buffer_mut());
+        app.render_nodes_list(nodes_list_rect, frame.buffer_mut());
+        app.render_message_block(msg_rect, frame.buffer_mut());
+        app.render_delete_node(data_popup_rect, frame.buffer_mut());
     }
 
     fn render_confirm_delete_screen(frame: &mut Frame, app: &mut App) {
