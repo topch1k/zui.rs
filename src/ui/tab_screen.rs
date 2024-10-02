@@ -27,7 +27,7 @@ impl AppUi {
         )
     }
 
-    fn default_styled_block() -> Block<'static> {
+    pub(crate) fn default_styled_block() -> Block<'static> {
         Block::default()
             .borders(Borders::ALL)
             .border_set(symbols::border::THICK)
@@ -141,6 +141,30 @@ impl AppUi {
         AppUi::default_styled_block()
             .title("Node to Delete")
             .on_dark_gray()
+            .title_alignment(Alignment::Center)
+            .title_bottom("Esc to cancel | Enter to Delete")
+    }
+
+    pub(crate) fn confirmation_input_rect(data_popup_rect: Rect) -> Rect {
+        Layout::horizontal(vec![
+            Constraint::Fill(1),
+            Constraint::Fill(5),
+            Constraint::Fill(1),
+        ])
+        .split(
+            Layout::vertical(vec![
+                Constraint::Fill(10),
+                Constraint::Fill(4),
+                Constraint::Fill(10),
+            ])
+            .split(data_popup_rect)[1],
+        )[1]
+    }
+
+    pub(crate) fn confirm_delete_block() -> Block<'static> {
+        AppUi::default_styled_block()
+            .title("Confirm Delete")
+            .on_red()
             .title_alignment(Alignment::Center)
             .title_bottom("Esc to cancel | Enter to Delete")
     }
