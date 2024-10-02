@@ -168,4 +168,38 @@ impl AppUi {
             .title_alignment(Alignment::Center)
             .title_bottom("Esc to cancel | Enter to Delete")
     }
+
+    pub(crate) fn connection_editing_block() -> Block<'static> {
+        AppUi::default_styled_block()
+            .title("Connect")
+            .title_bottom("ESC to cancel")
+            .title_bottom("ENTER to save")
+            .title_alignment(Alignment::Center)
+    }
+    pub(crate) fn connection_input_block() -> Block<'static> {
+        Block::default()
+            .borders(Borders::ALL)
+            .border_set(symbols::border::PLAIN)
+            .on_dark_gray()
+    }
+
+    pub(crate) fn connection_frame_block() -> Block<'static> {
+        Block::default()
+            .title("zui.rs")
+            .borders(Borders::ALL)
+            .border_set(symbols::border::ONE_EIGHTH_WIDE)
+            .title_bottom("q to quit")
+    }
+
+    pub(crate) fn connection_popup_block() -> Block<'static> {
+        Block::default()
+            .title("Connect")
+            .borders(Borders::ALL)
+            .border_set(symbols::border::THICK)
+            .on_gray()
+            .title_bottom("ESC to cancel")
+            .title_bottom("ENTER to connect")
+            .title_bottom("e to edit")
+            .title_alignment(Alignment::Center)
+    }
 }

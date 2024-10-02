@@ -1,18 +1,12 @@
 use std::vec;
 
 use ratatui::{
-    layout::{Alignment, Constraint, Layout},
-    style::{palette::tailwind, Color, Modifier, Style, Stylize},
-    symbols,
-    text::Line,
-    widgets::{Block, Borders, Clear, List, ListItem, Paragraph, StatefulWidget, Tabs, Wrap},
+    layout::{Constraint, Layout},
+    widgets::Paragraph,
     Frame,
 };
 
-use crate::{
-    app::{state::AppState, App},
-    tab::Tab,
-};
+use crate::app::{state::AppState, App};
 
 pub struct AppUi {}
 
@@ -51,137 +45,64 @@ impl AppUi {
     }
 
     pub fn render_connection_editing_screen(frame: &mut Frame, app: &mut App) {
-        let frame_layout = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-            ],
-        )
-        .split(frame.area());
+        let frame_layout = AppUi::vertical_equal_layout().split(frame.area());
 
-        let popup_layout = Layout::new(
-            ratatui::layout::Direction::Horizontal,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-            ],
-        )
-        .split(frame_layout[1]);
+        let popup_layout = AppUi::horizontal_equal_layout().split(frame_layout[1]);
 
-        let popup_block = Block::default()
-            .title("Connect")
-            .borders(Borders::ALL)
-            .border_set(symbols::border::THICK)
-            .on_gray()
-            .title_bottom("ESC to cancel")
-            .title_bottom("ENTER to save")
-            .title_alignment(Alignment::Center);
+        let popup_block = AppUi::connection_editing_block();
 
-        let popup_input_layout = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
+        let input_layout = Layout::horizontal(vec![
+            Constraint::Fill(1),
+            Constraint::Fill(5),
+            Constraint::Fill(1),
+        ])
+        .split(
+            Layout::vertical(vec![
                 Constraint::Fill(10),
                 Constraint::Fill(3),
                 Constraint::Fill(10),
-            ],
-        )
-        .split(popup_layout[1]);
+            ])
+            .split(popup_layout[1])[1],
+        );
 
-        let input_layout = Layout::new(
-            ratatui::layout::Direction::Horizontal,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Fill(5),
-                Constraint::Fill(1),
-            ],
-        )
-        .split(popup_input_layout[1]);
-
-        let popup_input_block = Block::default()
-            .borders(Borders::ALL)
-            .border_set(symbols::border::PLAIN)
-            .on_dark_gray();
+        let popup_input_block = AppUi::connection_input_block();
 
         let connection_string =
             Paragraph::new(app.connection_input.as_str()).block(popup_input_block);
 
-        let frame_block = Block::default()
-            .title("zui")
-            .borders(Borders::ALL)
-            .border_set(symbols::border::ONE_EIGHTH_WIDE)
-            .title_bottom("q to quit");
+        let frame_block = AppUi::connection_frame_block();
 
         frame.render_widget(frame_block, frame.area());
         frame.render_widget(popup_block, popup_layout[1]);
         frame.render_widget(connection_string, input_layout[1]);
     }
     pub fn render_connection_screen(frame: &mut Frame, app: &mut App) {
-        let frame_layout = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-            ],
-        )
-        .split(frame.area());
+        let frame_layout = AppUi::vertical_equal_layout().split(frame.area());
 
-        let popup_layout = Layout::new(
-            ratatui::layout::Direction::Horizontal,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-            ],
-        )
-        .split(frame_layout[1]);
+        let popup_layout = AppUi::horizontal_equal_layout().split(frame_layout[1]);
 
-        let popup_block = Block::default()
-            .title("Connect")
-            .borders(Borders::ALL)
-            .border_set(symbols::border::THICK)
-            .on_gray()
-            .title_bottom("ESC to cancel")
-            .title_bottom("ENTER to connect")
-            .title_bottom("e to edit")
-            .title_alignment(Alignment::Center);
+        let popup_block = AppUi::connection_popup_block();
 
-        let popup_input_layout = Layout::new(
-            ratatui::layout::Direction::Vertical,
-            vec![
+        let input_layout = Layout::horizontal(vec![
+            Constraint::Fill(1),
+            Constraint::Fill(5),
+            Constraint::Fill(1),
+        ])
+        .split(
+            Layout::vertical(vec![
                 Constraint::Fill(10),
                 Constraint::Fill(3),
                 Constraint::Fill(10),
-            ],
-        )
-        .split(popup_layout[1]);
+            ])
+            .split(popup_layout[1])[1],
+        );
 
-        let input_layout = Layout::new(
-            ratatui::layout::Direction::Horizontal,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Fill(5),
-                Constraint::Fill(1),
-            ],
-        )
-        .split(popup_input_layout[1]);
+        let popup_input_block = AppUi::connection_input_block();
 
-        let popup_input_block = Block::default()
-            .borders(Borders::ALL)
-            .border_set(symbols::border::PLAIN)
-            .on_dark_gray();
-        // app.connection_input = app.connection_str();
         let connection_string =
             Paragraph::new(app.connection_input.as_str()).block(popup_input_block);
 
-        let frame_block = Block::default()
-            .title("zui")
-            .borders(Borders::ALL)
-            .border_set(symbols::border::ONE_EIGHTH_WIDE)
-            .title_bottom("q to quit");
+        let frame_block = AppUi::connection_frame_block();
 
         frame.render_widget(frame_block, frame.area());
         frame.render_widget(popup_block, popup_layout[1]);
