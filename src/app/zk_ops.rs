@@ -1,9 +1,15 @@
 use super::App;
-use crate::node_data::NodeData;
-use std::mem;
-use zookeeper_async::Acl;
+use crate::{node_data::NodeData, zk::LoggingWatcher};
+use std::{mem, time::Duration};
+use zookeeper_async::{Acl, ZooKeeper};
 
 impl App {
+    pub(crate) async fn connect_default(connection_str: &str) -> Option<ZooKeeper> {
+        zookeeper_async::ZooKeeper::connect(connection_str, Duration::from_secs(1), LoggingWatcher)
+            .await
+            .ok()
+    }
+
     pub(crate) async fn store_node_stat(&mut self) {
         let full_path = self.tab_full_resource_path();
         let _ = self
@@ -17,22 +23,13 @@ impl App {
             });
     }
 
-    pub(crate) async fn store_children(&mut self) {
+    pub(crate) async fn store_children(&mut self, children: Vec<String>) {
         {
             self.clear_tab_message();
             self.append_tab_message(format!("Full path : {}\n", self.tab_full_resource_path()));
         }
-        let Some(ref zk) = self.zk else {
-            return;
-        };
 
-        let children = zk
-            .get_children(&self.tab_full_resource_path(), false)
-            .await
-            .ok();
-        if let Some(ch) = children {
-            self.curr_tab_mut().tab_data = ch;
-        }
+        self.curr_tab_mut().tab_data = children;
     }
 
     pub(crate) async fn store_node_data(&mut self) {
@@ -107,5 +104,12 @@ impl App {
             }
             Err(e) => self.curr_tab_mut().message = format!("Delete node failed : {e}"),
         }
+    }
+    pub(crate) async fn get_children(&self, path: &str) -> Option<Vec<String>> {
+        let Some(ref zk) = self.zk else {
+            return None;
+        };
+        // &self.tab_full_resource_path()
+        zk.get_children(path, false).await.ok()
     }
 }

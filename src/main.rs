@@ -40,18 +40,21 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                 AppState::EstablishingConnection => match key.code {
                     KeyCode::Esc => break Result::Ok(()),
                     KeyCode::Enter => {
-                        let connection_string = app.connection_input.clone();
-                        let zk = zookeeper_async::ZooKeeper::connect(
-                            &connection_string,
-                            Duration::from_secs(1),
-                            LoggingWatcher,
-                        )
-                        .await
-                        .unwrap(); //TODO:
-                        app.curr_tab_mut().tab_data =
-                            zk.get_children(BASE_RESOURCE, false).await.unwrap(); //TODO:
-                        app.zk = Some(zk);
+                        let connection_str = app.connection_input.clone();
+                        let zk = App::connect_default(&connection_str).await;
+                        app.zk = zk;
+                        let children = app.get_children(BASE_RESOURCE).await;
+                        if let Some(children) = children {
+                            if children.len() > 0 {
+                                app.store_children(children).await;
+                                app.curr_tab_mut().list_state.select(Some(0));
+                            } else {
+                                app.set_tab_message("Node does not have children nodes".to_owned());
+                            }
+                        }
+
                         app.state = AppState::Tab;
+                        app.curr_tab = 0;
                     }
                     KeyCode::Char('e') => {
                         app.state = AppState::EditingConnection;
@@ -87,11 +90,20 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         KeyCode::Char('q') => break Result::Ok(()),
                         KeyCode::Enter => {
                             let curr = app.selected_resource();
-                            app.store_children().await;
-                            if let Some(curr) = curr {
-                                app.curr_tab_mut().prev_resources.push(curr);
+                            let children = app.get_children(&app.tab_full_resource_path()).await;
+                            if let Some(children) = children {
+                                if children.len() > 0 {
+                                    app.store_children(children).await;
+                                    if let Some(curr) = curr {
+                                        app.curr_tab_mut().prev_resources.push(curr);
+                                    }
+                                    app.curr_tab_mut().list_state.select(Some(0));
+                                } else {
+                                    app.set_tab_message(
+                                        "Node does not have children nodes".to_owned(),
+                                    );
+                                }
                             }
-                            app.curr_tab_mut().list_state.select(Some(0));
                         }
                         KeyCode::Esc => {
                             if app.is_full_resources_path_empty() {
@@ -99,8 +111,18 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                             }
                             app.curr_tab_mut().curr_resource =
                                 app.curr_tab_mut().prev_resources.pop();
-                            app.store_children().await;
-                            app.curr_tab_mut().list_state.select(Some(0));
+                            let children = app.get_children(&app.tab_full_resource_path()).await;
+                            if let Some(children) = children {
+                                if children.len() > 0 {
+                                    app.store_children(children).await;
+                                    app.curr_tab_mut().list_state.select(Some(0));
+                                } else {
+                                    app.set_tab_message(
+                                        "Node does not have children nodes".to_owned(),
+                                    );
+                                }
+                            }
+                            // app.curr_tab_mut().list_state.select(Some(0));
                         }
                         KeyCode::Char('R') => {
                             app.curr_tab_mut().state = TabState::ReadNodeData;
@@ -116,11 +138,29 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                         }
                         KeyCode::Right => {
                             app.next_tab();
-                            app.store_children().await;
+                            let children = app.get_children(&app.tab_full_resource_path()).await;
+                            if let Some(children) = children {
+                                if children.len() > 0 {
+                                    app.store_children(children).await;
+                                } else {
+                                    app.set_tab_message(
+                                        "Node does not have children nodes".to_owned(),
+                                    );
+                                }
+                            }
                         }
                         KeyCode::Left => {
                             app.previous_tab();
-                            app.store_children().await;
+                            let children = app.get_children(&app.tab_full_resource_path()).await;
+                            if let Some(children) = children {
+                                if children.len() > 0 {
+                                    app.store_children(children).await;
+                                } else {
+                                    app.set_tab_message(
+                                        "Node does not have children nodes".to_owned(),
+                                    );
+                                }
+                            }
                         }
 
                         _ => {}
@@ -228,7 +268,17 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                                 app.delete_node().await;
                                 app.curr_tab_mut().state = TabState::Tab;
                                 app.curr_tab_mut().curr_resource = None;
-                                app.store_children().await;
+                                let children =
+                                    app.get_children(&app.tab_full_resource_path()).await;
+                                if let Some(children) = children {
+                                    if children.len() > 0 {
+                                        app.store_children(children).await;
+                                    } else {
+                                        app.set_tab_message(
+                                            "Node does not have children nodes".to_owned(),
+                                        );
+                                    }
+                                }
                             } else {
                                 app.set_tab_message("Incorrect confirmation string".to_owned());
                             }
