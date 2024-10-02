@@ -513,7 +513,7 @@ impl AppUi {
 
         let input_paragraph = Paragraph::new(app.input_buf.as_str())
             .wrap(Wrap { trim: true })
-            .block(AppUi::default_styled_block());
+            .block(AppUi::default_styled_block().on_red());
 
         let node_to_delete = app.node_path_buf.as_str();
         let edit_create_node_path_paragraph = Paragraph::new(format!(

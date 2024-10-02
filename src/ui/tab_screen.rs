@@ -107,7 +107,7 @@ impl AppUi {
     }
 
     pub(crate) fn edit_data_non_active_block() -> Block<'static> {
-        Block::default()
+        AppUi::default_styled_block()
             .title("Edit Data")
             .on_light_blue()
             .title_alignment(Alignment::Center)
@@ -115,7 +115,7 @@ impl AppUi {
     }
 
     pub(crate) fn edit_data_active_block() -> Block<'static> {
-        Block::default()
+        AppUi::default_styled_block()
             .title("Edit Data")
             .on_blue()
             .title_alignment(Alignment::Center)
