@@ -121,4 +121,19 @@ impl AppUi {
             .title_alignment(Alignment::Center)
             .title_bottom("ESC to cancel | Enter to Create | Tab to Change Window")
     }
+
+    pub(crate) fn current_data_block() -> Block<'static> {
+        AppUi::default_styled_block()
+            .title("Current Data")
+            .on_dark_gray()
+            .title_alignment(Alignment::Center)
+    }
+
+    pub(crate) fn edited_data_block() -> Block<'static> {
+        AppUi::default_styled_block()
+            .title("Edited Data")
+            .on_dark_gray()
+            .title_alignment(Alignment::Center)
+            .title_bottom("ESC to cancel | Enter to Save")
+    }
 }
