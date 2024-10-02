@@ -8,7 +8,7 @@ use ratatui::{
     layout::Rect,
     style::{Modifier, Style},
     text::Line,
-    widgets::{Clear, List, ListItem, ListState, Paragraph, StatefulWidget, Tabs, Widget},
+    widgets::{Clear, List, ListItem, ListState, Paragraph, StatefulWidget, Tabs, Widget, Wrap},
 };
 use state::AppState;
 use zookeeper_async::Stat;
@@ -131,5 +131,12 @@ impl App {
                 Widget::render(AppUi::info_block(), area, buf);
             }
         }
+    }
+
+    pub(crate) fn render_node_data(&mut self, area: Rect, buf: &mut Buffer) {
+        Paragraph::new(self.node_data.to_string())
+            .wrap(Wrap { trim: true })
+            .block(AppUi::node_data_block())
+            .render(area, buf);
     }
 }
