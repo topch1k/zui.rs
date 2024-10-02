@@ -21,10 +21,6 @@ impl App {
         {
             self.clear_tab_message();
             self.append_tab_message(format!("Full path : {}\n", self.tab_full_resource_path()));
-            self.append_tab_message(format!(
-                "Prev path : {:?}\n",
-                self.curr_tab().prev_resources
-            ));
         }
         let Some(ref zk) = self.zk else {
             return;

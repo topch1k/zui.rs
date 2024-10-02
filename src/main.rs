@@ -91,7 +91,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                             if let Some(curr) = curr {
                                 app.curr_tab_mut().prev_resources.push(curr);
                             }
-                            app.curr_tab_mut().list_state.select(None);
+                            app.curr_tab_mut().list_state.select(Some(0));
                         }
                         KeyCode::Esc => {
                             if app.is_full_resources_path_empty() {
@@ -100,7 +100,7 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                             app.curr_tab_mut().curr_resource =
                                 app.curr_tab_mut().prev_resources.pop();
                             app.store_children().await;
-                            app.curr_tab_mut().list_state.select(None);
+                            app.curr_tab_mut().list_state.select(Some(0));
                         }
                         KeyCode::Char('R') => {
                             app.curr_tab_mut().state = TabState::ReadNodeData;
