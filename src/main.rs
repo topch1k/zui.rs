@@ -1,5 +1,4 @@
 pub mod app;
-pub mod app_legacy;
 pub mod cli;
 pub mod node_data;
 pub mod tab;
