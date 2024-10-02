@@ -454,67 +454,22 @@ impl AppUi {
     }
 
     fn render_delete_node_screen(frame: &mut Frame, app: &mut App) {
-        let titles = app.tabs.iter().map(|t| t.title());
-        let highlight_style = (Color::default(), tailwind::AMBER.c700);
-        let selected_tab_index = app.curr_tab;
-
-        let tabs = Tabs::new(titles)
-            .highlight_style(highlight_style)
-            .select(selected_tab_index);
-
         let [tabs_rect, work_rect, msg_rect] = AppUi::tab_screen_layout().areas(frame.area());
 
+        let tabs = app.tabs();
         frame.render_widget(tabs, tabs_rect);
 
-        let data_popup_rect = Layout::new(
-            ratatui::layout::Direction::Horizontal,
-            vec![
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-                Constraint::Fill(1),
-            ],
-        )
-        .split(
-            Layout::new(
-                ratatui::layout::Direction::Vertical,
-                vec![
-                    Constraint::Fill(1),
-                    Constraint::Fill(1),
-                    Constraint::Fill(1),
-                ],
-            )
-            .split(work_rect)[1],
-        )[1];
+        let data_popup_rect = AppUi::data_popup_rect(work_rect);
 
         let edit_create_node_path_paragraph = Paragraph::new(app.node_path_buf.as_str())
             .wrap(Wrap { trim: true })
-            .block(
-                Block::default()
-                    .title("Node to Delete")
-                    .borders(Borders::ALL)
-                    .border_set(symbols::border::THICK)
-                    .on_dark_gray()
-                    .title_alignment(Alignment::Center)
-                    .title_bottom("Esc to cancel | Enter to Delete"),
-            );
+            .block(AppUi::delete_node_block());
 
         let [nodes_list_rect, node_stat_rect] = AppUi::work_space_layout().areas(work_rect);
 
-        let msg_paragraph = Paragraph::new(app.message.as_str()).block(
-            Block::default()
-                .title("Message")
-                .borders(Borders::ALL)
-                .border_set(symbols::border::THICK)
-                .on_gray()
-                .title_alignment(Alignment::Left),
-        );
+        let msg_paragraph = Paragraph::new(app.message.as_str()).block(AppUi::message_block());
 
-        let info_block = Block::default()
-            .title("Node Stat")
-            .borders(Borders::ALL)
-            .border_set(symbols::border::THICK)
-            .on_gray()
-            .title_alignment(Alignment::Center);
+        let info_block = AppUi::info_block();
 
         let node_stat = &app.current_node_stat;
         match node_stat {
@@ -528,12 +483,7 @@ impl AppUi {
             }
         }
 
-        let nodes_block = Block::default()
-            .title("Nodes")
-            .borders(Borders::ALL)
-            .border_set(symbols::border::THICK)
-            .on_gray()
-            .title_alignment(Alignment::Left);
+        let nodes_block = AppUi::nodes_block();
 
         let items = app
             .tab_data

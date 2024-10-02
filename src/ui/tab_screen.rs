@@ -136,4 +136,12 @@ impl AppUi {
             .title_alignment(Alignment::Center)
             .title_bottom("ESC to cancel | Enter to Save")
     }
+
+    pub(crate) fn delete_node_block() -> Block<'static> {
+        AppUi::default_styled_block()
+            .title("Node to Delete")
+            .on_dark_gray()
+            .title_alignment(Alignment::Center)
+            .title_bottom("Esc to cancel | Enter to Delete")
+    }
 }
