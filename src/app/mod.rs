@@ -147,6 +147,10 @@ impl App {
         &self.node_data_buf
     }
 
+    pub(crate) fn node_data(&self) -> &NodeData {
+        &self.node_data
+    }
+
     pub(crate) fn render_edit_path_active_block(&mut self, area: Rect, buf: &mut Buffer) {
         Paragraph::new(self.node_path_buf().as_str())
             .wrap(Wrap { trim: true })
@@ -171,6 +175,20 @@ impl App {
         Paragraph::new(self.node_data_buf().as_str())
             .wrap(Wrap { trim: true })
             .block(AppUi::edit_data_active_block())
+            .render(area, buf);
+    }
+
+    pub(crate) fn render_current_node_data(&mut self, area: Rect, buf: &mut Buffer) {
+        Paragraph::new(self.node_data().to_string())
+            .wrap(Wrap { trim: true })
+            .block(AppUi::current_data_block())
+            .render(area, buf);
+    }
+
+    pub(crate) fn render_edited_node_data(&mut self, area: Rect, buf: &mut Buffer) {
+        Paragraph::new(self.node_data_buf().to_string())
+            .wrap(Wrap { trim: true })
+            .block(AppUi::current_data_block())
             .render(area, buf);
     }
 }
