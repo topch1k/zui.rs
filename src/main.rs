@@ -40,24 +40,10 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> AppResult<(
                 AppState::EstablishingConnection => match key.code {
                     KeyCode::Esc => break Result::Ok(()),
                     KeyCode::Enter => {
-                        let connection_str = app.connection_input.clone();
-                        let zk = App::connect_default(&connection_str).await.ok();
-                        if zk.is_none() {
-                            return Err(errors::AppError::ConnectionTimeoutError);
-                        }
-                        app.zk = zk;
-                        let children = app.get_children(BASE_RESOURCE).await;
-                        if let Some(children) = children {
-                            if !children.is_empty() {
-                                app.store_children(children).await;
-                                app.curr_tab_mut().list_state.select(Some(0));
-                            } else {
-                                app.set_tab_message("Node does not have children nodes".to_owned());
-                            }
-                        }
-
+                        let zk = App::connect_default(&app.connection_input).await?;
+                        app.zk = Some(zk);
+                        app.store_curr_tab_children_by_path(BASE_RESOURCE).await;
                         app.state = AppState::Tab;
-                        app.curr_tab = 0;
                     }
                     KeyCode::Char('e') => {
                         app.state = AppState::EditingConnection;
@@ -83,14 +69,27 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> AppResult<(
                         KeyCode::Char('j') | KeyCode::Down => {
                             app.next();
                             app.curr_tab_mut().curr_resource = app.selected_resource();
-                            app.store_node_stat().await;
+                            if app.curr_tab().toggle_stats_auto_load {
+                                app.store_node_stat().await;
+                            }
                         }
                         KeyCode::Char('k') | KeyCode::Up => {
                             app.previous();
                             app.curr_tab_mut().curr_resource = app.selected_resource();
-                            app.store_node_stat().await;
+                            if app.curr_tab().toggle_stats_auto_load {
+                                app.store_node_stat().await;
+                            }
                         }
                         KeyCode::Char('q') => break Result::Ok(()),
+                        KeyCode::Char('S') => {
+                            let curr = app.curr_tab().toggle_stats_auto_load;
+                            app.curr_tab_mut().toggle_stats_auto_load = !curr;
+                            if !curr {
+                                app.store_node_stat().await;
+                            } else {
+                                app.curr_tab_mut().current_node_stat = None;
+                            }
+                        }
                         KeyCode::Enter => {
                             let curr = app.selected_resource();
                             let children = app.get_children(&app.tab_full_resource_path()).await;

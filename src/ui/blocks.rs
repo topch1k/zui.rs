@@ -32,6 +32,7 @@ impl AppUi {
             .title("Nodes")
             .title_alignment(Alignment::Left)
             .title_bottom("(q)uit | ↑ to Up | ↓ to Down | Enter to dir Down | Esc to dir Up | (C)reate Node | (D)elete Node")
+            .title_bottom("(S)tat auto-load")
     }
 
     pub(crate) fn node_data_block() -> Block<'static> {

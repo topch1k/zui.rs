@@ -41,6 +41,18 @@ impl App {
         self.curr_tab_mut().tab_data = children;
     }
 
+    pub(crate) async fn store_curr_tab_children_by_path(&mut self, path: &str) {
+        let children = self.get_children(path).await;
+        if let Some(children) = children {
+            if !children.is_empty() {
+                self.store_children(children).await;
+                self.curr_tab_mut().list_state.select(Some(0));
+            } else {
+                self.set_tab_message("Node does not have children nodes".to_owned());
+            }
+        }
+    }
+
     pub(crate) async fn store_node_data(&mut self) {
         let Some(ref zk) = self.zk else {
             return;
@@ -63,7 +75,7 @@ impl App {
         let res = zk
             .create(
                 &self.curr_tab().node_path_buf,
-                self.curr_tab().node_data_buf.clone().into_bytes(),
+                self.curr_tab().node_data_buf.clone().into_bytes(), //TODO: Avoid clonning
                 Acl::open_unsafe().clone(),
                 zookeeper_async::CreateMode::Persistent,
             )
