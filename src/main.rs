@@ -1,5 +1,6 @@
 pub mod app;
 pub mod cli;
+pub mod errors;
 pub mod node_data;
 pub mod tab;
 pub mod ui;
@@ -11,12 +12,12 @@ use app::{
 };
 use cli::parse_cli;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
+use errors::AppResult;
 use ratatui::{prelude::Backend, Terminal};
-use std::io;
 use ui::ui_handle::AppUi;
 
 #[tokio::main]
-async fn main() -> io::Result<()> {
+async fn main() -> AppResult<()> {
     let mut terminal = ratatui::init();
     terminal.clear()?;
     let app_result = run(terminal, App::new(parse_cli().connection())).await;
@@ -24,7 +25,7 @@ async fn main() -> io::Result<()> {
     app_result
 }
 
-async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<()> {
+async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> AppResult<()> {
     loop {
         terminal.draw(|frame| {
             AppUi::ui(frame, &mut app);
@@ -40,7 +41,10 @@ async fn run<B: Backend>(mut terminal: Terminal<B>, mut app: App) -> io::Result<
                     KeyCode::Esc => break Result::Ok(()),
                     KeyCode::Enter => {
                         let connection_str = app.connection_input.clone();
-                        let zk = App::connect_default(&connection_str).await;
+                        let zk = App::connect_default(&connection_str).await.ok();
+                        if zk.is_none() {
+                            return Err(errors::AppError::ConnectionTimeoutError);
+                        }
                         app.zk = zk;
                         let children = app.get_children(BASE_RESOURCE).await;
                         if let Some(children) = children {

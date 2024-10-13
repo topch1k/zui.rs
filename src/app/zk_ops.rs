@@ -1,13 +1,22 @@
 use super::App;
-use crate::{node_data::NodeData, zk::LoggingWatcher};
+use crate::{
+    errors::{AppError, AppResult},
+    node_data::NodeData,
+    zk::LoggingWatcher,
+};
 use std::{mem, time::Duration};
 use zookeeper_async::{Acl, ZooKeeper};
 
 impl App {
-    pub(crate) async fn connect_default(connection_str: &str) -> Option<ZooKeeper> {
-        zookeeper_async::ZooKeeper::connect(connection_str, Duration::from_secs(1), LoggingWatcher)
-            .await
-            .ok()
+    pub(crate) async fn connect_default(connection_str: &str) -> AppResult<ZooKeeper> {
+        //TODO: Make timeout configurable
+        //TODO: Design Failure window
+        tokio::select! {
+            res = ZooKeeper::connect(connection_str, Duration::from_secs(1), LoggingWatcher) => res.map_err(Into::into),
+            _ = tokio::time::sleep(Duration::from_secs(3)) => {
+                Err(AppError::ConnectionTimeoutError)
+            }
+        }
     }
 
     pub(crate) async fn store_node_stat(&mut self) {
