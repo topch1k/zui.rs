@@ -50,6 +50,7 @@ impl App {
     }
 
     pub(crate) fn render_node_data(&mut self, area: Rect, buf: &mut Buffer) {
+        Clear.render(area, buf);
         Paragraph::new(self.curr_tab().node_data.to_string())
             .wrap(Wrap { trim: true })
             .block(AppUi::node_data_block())
