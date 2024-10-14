@@ -21,7 +21,7 @@ pub const CONFIRMATION_STRING: &str = "DELETE";
 pub struct App {
     pub state: AppState,
     pub connection: Option<Connection>,
-    pub zk: Option<zookeeper_async::ZooKeeper>,
+    pub zk: Option<zookeeper_async::ZooKeeper>, //TODO: Get rid from Option
     pub connection_input: String,
     pub curr_tab: usize,
     pub tabs: Vec<Tab>,

@@ -13,8 +13,11 @@ impl App {
     pub(crate) fn render_nodes_list(&mut self, area: Rect, buf: &mut Buffer) {
         let curr_tab = self.curr_tab;
         let items: Vec<ListItem> = {
-            let tab_data = self.tabs[curr_tab].tab_data.clone();
-            tab_data.into_iter().map(ListItem::new).collect()
+            let tab_data = &self.tabs[curr_tab].tab_data;
+            tab_data
+                .iter()
+                .map(|str| ListItem::new(str.as_str()))
+                .collect()
         };
 
         let list = List::new(items)
@@ -22,8 +25,10 @@ impl App {
             .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
             .highlight_symbol(">>");
 
-        let list_state = &mut self.tabs[curr_tab].list_state;
-        StatefulWidget::render(list, area, buf, list_state);
+        let mut list_state = self.curr_tab().list_state.clone();
+
+        StatefulWidget::render(list, area, buf, &mut list_state);
+        self.curr_tab_mut().list_state = list_state;
     }
 
     pub(crate) fn render_message_block(&mut self, area: Rect, buf: &mut Buffer) {
@@ -50,6 +55,7 @@ impl App {
     }
 
     pub(crate) fn render_node_data(&mut self, area: Rect, buf: &mut Buffer) {
+        Clear.render(area, buf);
         Paragraph::new(self.curr_tab().node_data.to_string())
             .wrap(Wrap { trim: true })
             .block(AppUi::node_data_block())

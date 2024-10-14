@@ -21,13 +21,14 @@ pub struct Tab {
     pub node_data_buf: String,
     pub input_buf: String,
     pub state: TabState,
+    pub toggle_stats_auto_load: bool,
 }
 
 impl Default for Tab {
     fn default() -> Self {
         Self {
             tab_data: Default::default(),
-            list_state: Default::default(),
+            list_state: ListState::default().with_selected(Some(0usize)),
             curr_resource: Some(BASE_RESOURCE.to_string()),
             prev_resources: Default::default(),
             current_node_stat: Default::default(),
@@ -37,6 +38,7 @@ impl Default for Tab {
             node_data_buf: Default::default(),
             input_buf: Default::default(),
             state: Default::default(),
+            toggle_stats_auto_load: true,
         }
     }
 }

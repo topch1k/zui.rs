@@ -1,13 +1,22 @@
 use super::App;
-use crate::{node_data::NodeData, zk::LoggingWatcher};
+use crate::{
+    errors::{AppError, AppResult},
+    node_data::NodeData,
+    zk::LoggingWatcher,
+};
 use std::{mem, time::Duration};
 use zookeeper_async::{Acl, ZooKeeper};
 
 impl App {
-    pub(crate) async fn connect_default(connection_str: &str) -> Option<ZooKeeper> {
-        zookeeper_async::ZooKeeper::connect(connection_str, Duration::from_secs(1), LoggingWatcher)
-            .await
-            .ok()
+    pub(crate) async fn connect_default(connection_str: &str) -> AppResult<ZooKeeper> {
+        //TODO: Make timeout configurable
+        //TODO: Design Failure window
+        tokio::select! {
+            res = ZooKeeper::connect(connection_str, Duration::from_secs(1), LoggingWatcher) => res.map_err(Into::into),
+            _ = tokio::time::sleep(Duration::from_secs(3)) => {
+                Err(AppError::ConnectionTimeoutError)
+            }
+        }
     }
 
     pub(crate) async fn store_node_stat(&mut self) {
@@ -32,6 +41,18 @@ impl App {
         self.curr_tab_mut().tab_data = children;
     }
 
+    pub(crate) async fn store_curr_tab_children_by_path(&mut self, path: &str) {
+        let children = self.get_children(path).await;
+        if let Some(children) = children {
+            if !children.is_empty() {
+                self.store_children(children).await;
+                self.curr_tab_mut().list_state.select(Some(0));
+            } else {
+                self.set_tab_message("Node does not have children nodes".to_owned());
+            }
+        }
+    }
+
     pub(crate) async fn store_node_data(&mut self) {
         let Some(ref zk) = self.zk else {
             return;
@@ -54,7 +75,7 @@ impl App {
         let res = zk
             .create(
                 &self.curr_tab().node_path_buf,
-                self.curr_tab().node_data_buf.clone().into_bytes(),
+                self.curr_tab().node_data_buf.clone().into_bytes(), //TODO: Avoid clonning
                 Acl::open_unsafe().clone(),
                 zookeeper_async::CreateMode::Persistent,
             )
